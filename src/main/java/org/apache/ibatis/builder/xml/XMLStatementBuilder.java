@@ -18,6 +18,8 @@ package org.apache.ibatis.builder.xml;
 import java.util.List;
 import java.util.Locale;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import org.apache.ibatis.builder.BaseBuilder;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
@@ -32,6 +34,7 @@ import org.apache.ibatis.mapping.StatementType;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.util.JavaTypeUtil;
 
 /**
  * @author Clinton Begin
@@ -72,8 +75,10 @@ public class XMLStatementBuilder extends BaseBuilder {
     XMLIncludeTransformer includeParser = new XMLIncludeTransformer(configuration, builderAssistant);
     includeParser.applyIncludes(context.getNode());
 
+    AnnotatedMethod resolveMethod = resolvedMethod(id);
+
     String parameterType = context.getStringAttribute("parameterType");
-    Class<?> parameterTypeClass = resolveClass(parameterType);
+    JavaType parameterTypeClass = resolveParameterType(parameterType, resolveMethod);
 
     String lang = context.getStringAttribute("lang");
     LanguageDriver langDriver = getLanguageDriver(lang);
@@ -99,7 +104,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     Integer timeout = context.getIntAttribute("timeout");
     String parameterMap = context.getStringAttribute("parameterMap");
     String resultType = context.getStringAttribute("resultType");
-    Class<?> resultTypeClass = resolveClass(resultType);
+    JavaType resultResolvedType = resolveResolvedType(resultType);
     String resultMap = context.getStringAttribute("resultMap");
     String resultSetType = context.getStringAttribute("resultSetType");
     ResultSetType resultSetTypeEnum = resolveResultSetType(resultSetType);
@@ -111,12 +116,12 @@ public class XMLStatementBuilder extends BaseBuilder {
     String resultSets = context.getStringAttribute("resultSets");
 
     builderAssistant.addMappedStatement(id, sqlSource, statementType, sqlCommandType,
-        fetchSize, timeout, parameterMap, parameterTypeClass, resultMap, resultTypeClass,
+        fetchSize, timeout, parameterMap, parameterTypeClass, resultMap, resultResolvedType,
         resultSetTypeEnum, flushCache, useCache, resultOrdered,
         keyGenerator, keyProperty, keyColumn, databaseId, langDriver, resultSets);
   }
 
-  private void processSelectKeyNodes(String id, Class<?> parameterTypeClass, LanguageDriver langDriver) {
+  private void processSelectKeyNodes(String id, JavaType parameterTypeClass, LanguageDriver langDriver) {
     List<XNode> selectKeyNodes = context.evalNodes("selectKey");
     if (configuration.getDatabaseId() != null) {
       parseSelectKeyNodes(id, selectKeyNodes, parameterTypeClass, langDriver, configuration.getDatabaseId());
@@ -125,7 +130,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     removeSelectKeyNodes(selectKeyNodes);
   }
 
-  private void parseSelectKeyNodes(String parentId, List<XNode> list, Class<?> parameterTypeClass, LanguageDriver langDriver, String skRequiredDatabaseId) {
+  private void parseSelectKeyNodes(String parentId, List<XNode> list, JavaType parameterTypeClass, LanguageDriver langDriver, String skRequiredDatabaseId) {
     for (XNode nodeToHandle : list) {
       String id = parentId + SelectKeyGenerator.SELECT_KEY_SUFFIX;
       String databaseId = nodeToHandle.getStringAttribute("databaseId");
@@ -135,9 +140,9 @@ public class XMLStatementBuilder extends BaseBuilder {
     }
   }
 
-  private void parseSelectKeyNode(String id, XNode nodeToHandle, Class<?> parameterTypeClass, LanguageDriver langDriver, String databaseId) {
+  private void parseSelectKeyNode(String id, XNode nodeToHandle, JavaType parameterTypeClass, LanguageDriver langDriver, String databaseId) {
     String resultType = nodeToHandle.getStringAttribute("resultType");
-    Class<?> resultTypeClass = resolveClass(resultType);
+    JavaType resultTypeClass = resolveResolvedType(resultType);
     StatementType statementType = StatementType.valueOf(nodeToHandle.getStringAttribute("statementType", StatementType.PREPARED.toString()));
     String keyProperty = nodeToHandle.getStringAttribute("keyProperty");
     String keyColumn = nodeToHandle.getStringAttribute("keyColumn");
@@ -198,4 +203,16 @@ public class XMLStatementBuilder extends BaseBuilder {
     return configuration.getLanguageDriver(langClass);
   }
 
+  protected AnnotatedMethod resolvedMethod(String id) {
+    JavaType mapperType = builderAssistant.getMapperType();
+    return JavaTypeUtil.resolvedMethod(mapperType, id);
+  }
+
+  protected JavaType resolveParameterType(String alias, AnnotatedMethod method) {
+    JavaType type = resolveResolvedType(alias);
+    if (type == null && method != null) {
+      type = JavaTypeUtil.compressedParameterType(method);
+    }
+    return type;
+  }
 }

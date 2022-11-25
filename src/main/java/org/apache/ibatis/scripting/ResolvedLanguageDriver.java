@@ -23,9 +23,8 @@ import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.util.JavaTypeUtil;
 
-public interface LanguageDriver {
+public interface ResolvedLanguageDriver extends LanguageDriver{
 
   /**
    * Creates a {@link ParameterHandler} that passes the actual parameters to the the JDBC statement.
@@ -37,6 +36,7 @@ public interface LanguageDriver {
    * @return the parameter handler
    * @see DefaultParameterHandler
    */
+  @Override
   ParameterHandler createParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql);
 
   /**
@@ -48,20 +48,22 @@ public interface LanguageDriver {
    * @param parameterType input parameter type got from a mapper method or specified in the parameterType xml attribute. Can be null.
    * @return the sql source
    */
-  SqlSource createSqlSource(Configuration configuration, XNode script, Class<?> parameterType);
+  @Override
+  default SqlSource createSqlSource(Configuration configuration, XNode script, Class<?> parameterType) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Creates an {@link SqlSource} that will hold the statement read from a mapper xml file.
    * It is called during startup, when the mapped statement is read from a class or an xml file.
    *
    * @param configuration The MyBatis configuration
-   * @param script        XNode parsed from a XML file
+   * @param script XNode parsed from a XML file
    * @param parameterType input parameter type got from a mapper method or specified in the parameterType xml attribute. Can be null.
    * @return the sql source
    */
-  default SqlSource createSqlSource(Configuration configuration, XNode script, JavaType parameterType) {
-    return createSqlSource(configuration, script, JavaTypeUtil.getRawClass(parameterType));
-  }
+  @Override
+  SqlSource createSqlSource(Configuration configuration, XNode script, JavaType parameterType);
 
   /**
    * Creates an {@link SqlSource} that will hold the statement read from an annotation.
@@ -72,19 +74,21 @@ public interface LanguageDriver {
    * @param parameterType input parameter type got from a mapper method or specified in the parameterType xml attribute. Can be null.
    * @return the sql source
    */
-  SqlSource createSqlSource(Configuration configuration, String script, Class<?> parameterType);
+  @Override
+  default SqlSource createSqlSource(Configuration configuration, String script, Class<?> parameterType) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Creates an {@link SqlSource} that will hold the statement read from an annotation.
    * It is called during startup, when the mapped statement is read from a class or an xml file.
    *
    * @param configuration The MyBatis configuration
-   * @param script        The content of the annotation
+   * @param script The content of the annotation
    * @param parameterType input parameter type got from a mapper method or specified in the parameterType xml attribute. Can be null.
    * @return the sql source
    */
-  default SqlSource createSqlSource(Configuration configuration, String script, JavaType parameterType) {
-    return createSqlSource(configuration, script, JavaTypeUtil.getRawClass(parameterType));
-  }
+  @Override
+  SqlSource createSqlSource(Configuration configuration, String script, JavaType parameterType);
 
 }

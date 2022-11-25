@@ -15,21 +15,17 @@
  */
 package org.apache.ibatis.reflection;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
+import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.binding.MapperMethod.ParamMap;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
+import org.apache.ibatis.util.JavaTypeUtil;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.*;
 
 public class ParamNameResolver {
 
@@ -55,14 +51,19 @@ public class ParamNameResolver {
   private boolean hasParamAnnotation;
 
   public ParamNameResolver(Configuration config, Method method) {
+    this(config, method, method.getDeclaringClass());
+  }
+
+  public ParamNameResolver(Configuration config, Method method, Class<?> mapperClass) {
     this.useActualParamName = config.isUseActualParamName();
-    final Class<?>[] paramTypes = method.getParameterTypes();
+    final JavaType[] parameterTypes = JavaTypeUtil.resolveParameterTypes(mapperClass, method);
     final Annotation[][] paramAnnotations = method.getParameterAnnotations();
     final SortedMap<Integer, String> map = new TreeMap<>();
     int paramCount = paramAnnotations.length;
     // get names from @Param annotations
     for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
-      if (isSpecialParameter(paramTypes[paramIndex])) {
+      JavaType resolvedType = parameterTypes[paramIndex];
+      if (isSpecialParameter(resolvedType.getRawClass())) {
         // skip special parameters
         continue;
       }

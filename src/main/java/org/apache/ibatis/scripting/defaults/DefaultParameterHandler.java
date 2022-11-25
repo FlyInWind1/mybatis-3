@@ -15,10 +15,8 @@
  */
 package org.apache.ibatis.scripting.defaults;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
-
+import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.mapping.BoundSql;
@@ -31,6 +29,11 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeException;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
+import org.apache.ibatis.util.JavaTypeUtil;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * @author Clinton Begin
@@ -72,7 +75,7 @@ public class DefaultParameterHandler implements ParameterHandler {
             value = boundSql.getAdditionalParameter(propertyName);
           } else if (parameterObject == null) {
             value = null;
-          } else if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {
+          } else if (parameterObjectIsValue()) {
             value = parameterObject;
           } else {
             MetaObject metaObject = configuration.newMetaObject(parameterObject);
@@ -93,4 +96,16 @@ public class DefaultParameterHandler implements ParameterHandler {
     }
   }
 
+  private boolean parameterObjectIsValue() {
+    Class<?> clazz = parameterObject.getClass();
+    if (clazz == MapperMethod.ParamMap.class) {
+      // BaseExecutorTest HashMapTypeHandlerTest
+      return false;
+    }
+    JavaType type = mappedStatement.getParameterMap().getResolvedType();
+    if (JavaTypeUtil.isNotInstance(type, parameterObject)) {
+      type = JavaTypeUtil.constructType(clazz);
+    }
+    return typeHandlerRegistry.hasTypeHandler(type);
+  }
 }

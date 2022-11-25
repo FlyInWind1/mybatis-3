@@ -19,13 +19,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
-import org.apache.ibatis.reflection.wrapper.BeanWrapper;
-import org.apache.ibatis.reflection.wrapper.CollectionWrapper;
-import org.apache.ibatis.reflection.wrapper.MapWrapper;
-import org.apache.ibatis.reflection.wrapper.ObjectWrapper;
-import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
+import org.apache.ibatis.reflection.wrapper.*;
 
 /**
  * @author Clinton Begin
@@ -97,8 +94,16 @@ public class MetaObject {
     return objectWrapper.getSetterType(name);
   }
 
+  public JavaType getSetterResolvedType(String name) {
+    return objectWrapper.getSetterResolvedType(name);
+  }
+
   public Class<?> getGetterType(String name) {
     return objectWrapper.getGetterType(name);
+  }
+
+  public JavaType getGetterResolvedType(String name) {
+    return objectWrapper.getGetterResolvedType(name);
   }
 
   public boolean hasSetter(String name) {

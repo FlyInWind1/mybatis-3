@@ -21,10 +21,12 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 
+import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.reflection.invoker.GetFieldInvoker;
 import org.apache.ibatis.reflection.invoker.Invoker;
 import org.apache.ibatis.reflection.invoker.MethodInvoker;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
+import org.apache.ibatis.util.JavaTypeUtil;
 
 /**
  * @author Clinton Begin
@@ -37,6 +39,10 @@ public class MetaClass {
   private MetaClass(Class<?> type, ReflectorFactory reflectorFactory) {
     this.reflectorFactory = reflectorFactory;
     this.reflector = reflectorFactory.findForClass(type);
+  }
+
+  public static MetaClass forClass(JavaType type, ReflectorFactory reflectorFactory) {
+    return new MetaClass(type.getRawClass(), reflectorFactory);
   }
 
   public static MetaClass forClass(Class<?> type, ReflectorFactory reflectorFactory) {
@@ -78,6 +84,16 @@ public class MetaClass {
     }
   }
 
+  public JavaType getSetterResolvedType(String name) {
+    PropertyTokenizer prop = new PropertyTokenizer(name);
+    if (prop.hasNext()) {
+      MetaClass metaProp = metaClassForProperty(prop.getName());
+      return metaProp.getSetterResolvedType(prop.getChildren());
+    } else {
+      return reflector.getSetterResolvedType(prop.getName());
+    }
+  }
+
   public Class<?> getGetterType(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
@@ -88,9 +104,24 @@ public class MetaClass {
     return getGetterType(prop);
   }
 
+  public JavaType getGetterResolvedType(String name) {
+    PropertyTokenizer prop = new PropertyTokenizer(name);
+    if (prop.hasNext()) {
+      MetaClass metaProp = metaClassForProperty(prop);
+      return metaProp.getGetterResolvedType(prop.getChildren());
+    }
+    // issue #506. Resolve the type inside a Collection Object
+    return getGetterResolvedType(prop);
+  }
+
   private MetaClass metaClassForProperty(PropertyTokenizer prop) {
     Class<?> propType = getGetterType(prop);
     return MetaClass.forClass(propType, reflectorFactory);
+  }
+
+  private JavaType getGetterResolvedType(PropertyTokenizer prop) {
+    // TODO: 11/21/22
+    return JavaTypeUtil.constructType(getGetterType(prop));
   }
 
   private Class<?> getGetterType(PropertyTokenizer prop) {

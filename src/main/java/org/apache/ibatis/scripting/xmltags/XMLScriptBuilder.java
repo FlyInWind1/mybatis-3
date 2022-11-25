@@ -20,12 +20,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.builder.BaseBuilder;
 import org.apache.ibatis.builder.BuilderException;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.scripting.defaults.RawSqlSource;
 import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.util.JavaTypeUtil;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -36,14 +38,21 @@ public class XMLScriptBuilder extends BaseBuilder {
 
   private final XNode context;
   private boolean isDynamic;
-  private final Class<?> parameterType;
+  private final JavaType parameterType;
   private final Map<String, NodeHandler> nodeHandlerMap = new HashMap<>();
 
   public XMLScriptBuilder(Configuration configuration, XNode context) {
-    this(configuration, context, null);
+    this(configuration, context, (JavaType) null);
   }
 
   public XMLScriptBuilder(Configuration configuration, XNode context, Class<?> parameterType) {
+    super(configuration);
+    this.context = context;
+    this.parameterType = JavaTypeUtil.constructType(parameterType);
+    initNodeHandlerMap();
+  }
+
+  public XMLScriptBuilder(Configuration configuration, XNode context, JavaType parameterType) {
     super(configuration);
     this.context = context;
     this.parameterType = parameterType;

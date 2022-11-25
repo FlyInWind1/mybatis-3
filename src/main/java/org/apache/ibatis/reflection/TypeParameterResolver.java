@@ -25,6 +25,8 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 
+// TODO: 11/22/22
+@Deprecated
 /**
  * @author Iwao AVE!
  */

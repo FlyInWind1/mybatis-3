@@ -21,6 +21,7 @@ import java.util.Map;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.ReflectionException;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
+import org.apache.ibatis.util.JavaTypeUtil;
 
 /**
  * @author Clinton Begin
@@ -102,6 +103,16 @@ public abstract class BaseWrapper implements ObjectWrapper {
         throw new ReflectionException("The '" + prop.getName() + "' property of " + collection + " is not a List or Array.");
       }
     }
+  }
+
+  @Override
+  public Class<?> getSetterType(String name) {
+    return JavaTypeUtil.getRawClass(getSetterResolvedType(name));
+  }
+
+  @Override
+  public Class<?> getGetterType(String name) {
+    return JavaTypeUtil.getRawClass(getGetterResolvedType(name));
   }
 
 }

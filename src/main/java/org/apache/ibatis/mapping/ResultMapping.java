@@ -20,10 +20,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
+import org.apache.ibatis.util.JavaTypeUtil;
 
 /**
  * @author Clinton Begin
@@ -33,7 +35,7 @@ public class ResultMapping {
   private Configuration configuration;
   private String property;
   private String column;
-  private Class<?> javaType;
+  private JavaType resolvedType;
   private JdbcType jdbcType;
   private TypeHandler<?> typeHandler;
   private String nestedResultMapId;
@@ -61,7 +63,13 @@ public class ResultMapping {
     public Builder(Configuration configuration, String property, String column, Class<?> javaType) {
       this(configuration, property);
       resultMapping.column = column;
-      resultMapping.javaType = javaType;
+      resultMapping.resolvedType = JavaTypeUtil.constructType(javaType);
+    }
+
+    public Builder(Configuration configuration, String property, String column, JavaType JavaType) {
+      this(configuration, property);
+      resultMapping.column = column;
+      resultMapping.resolvedType = JavaType;
     }
 
     public Builder(Configuration configuration, String property) {
@@ -73,7 +81,7 @@ public class ResultMapping {
     }
 
     public Builder javaType(Class<?> javaType) {
-      resultMapping.javaType = javaType;
+      resultMapping.resolvedType = JavaTypeUtil.constructType(javaType);
       return this;
     }
 
@@ -170,10 +178,10 @@ public class ResultMapping {
     }
 
     private void resolveTypeHandler() {
-      if (resultMapping.typeHandler == null && resultMapping.javaType != null) {
+      if (resultMapping.typeHandler == null && resultMapping.resolvedType != null) {
         Configuration configuration = resultMapping.configuration;
         TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
-        resultMapping.typeHandler = typeHandlerRegistry.getTypeHandler(resultMapping.javaType, resultMapping.jdbcType);
+        resultMapping.typeHandler = typeHandlerRegistry.getTypeHandler(resultMapping.resolvedType.getRawClass(), resultMapping.jdbcType);
       }
     }
 
@@ -191,8 +199,12 @@ public class ResultMapping {
     return column;
   }
 
+  public JavaType getResolvedType() {
+    return resolvedType;
+  }
+
   public Class<?> getJavaType() {
-    return javaType;
+    return JavaTypeUtil.getRawClass(resolvedType);
   }
 
   public JdbcType getJdbcType() {
@@ -286,7 +298,7 @@ public class ResultMapping {
     //sb.append("configuration=").append(configuration); // configuration doesn't have a useful .toString()
     sb.append("property='").append(property).append('\'');
     sb.append(", column='").append(column).append('\'');
-    sb.append(", javaType=").append(javaType);
+    sb.append(", javaType=").append(resolvedType);
     sb.append(", jdbcType=").append(jdbcType);
     //sb.append(", typeHandler=").append(typeHandler); // typeHandler also doesn't have a useful .toString()
     sb.append(", nestedResultMapId='").append(nestedResultMapId).append('\'');

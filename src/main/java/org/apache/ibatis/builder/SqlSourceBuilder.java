@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.parsing.GenericTokenParser;
@@ -28,6 +29,7 @@ import org.apache.ibatis.reflection.MetaClass;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
+import org.apache.ibatis.util.JavaTypeUtil;
 
 /**
  * @author Clinton Begin
@@ -41,6 +43,10 @@ public class SqlSourceBuilder extends BaseBuilder {
   }
 
   public SqlSource parse(String originalSql, Class<?> parameterType, Map<String, Object> additionalParameters) {
+    return parse(originalSql, JavaTypeUtil.constructType(parameterType), additionalParameters);
+  }
+
+  public SqlSource parse(String originalSql, JavaType parameterType, Map<String, Object> additionalParameters) {
     ParameterMappingTokenHandler handler = new ParameterMappingTokenHandler(configuration, parameterType, additionalParameters);
     GenericTokenParser parser = new GenericTokenParser("#{", "}", handler);
     String sql;
@@ -49,7 +55,7 @@ public class SqlSourceBuilder extends BaseBuilder {
     } else {
       sql = parser.parse(originalSql);
     }
-    return new StaticSqlSource(configuration, sql, handler.getParameterMappings());
+    return new StaticSqlSource(configuration, sql, handler.getParameterMappings(), parameterType);
   }
 
   public static String removeExtraWhitespaces(String original) {
@@ -69,10 +75,10 @@ public class SqlSourceBuilder extends BaseBuilder {
   private static class ParameterMappingTokenHandler extends BaseBuilder implements TokenHandler {
 
     private final List<ParameterMapping> parameterMappings = new ArrayList<>();
-    private final Class<?> parameterType;
+    private final JavaType parameterType;
     private final MetaObject metaParameters;
 
-    public ParameterMappingTokenHandler(Configuration configuration, Class<?> parameterType, Map<String, Object> additionalParameters) {
+    public ParameterMappingTokenHandler(Configuration configuration, JavaType parameterType, Map<String, Object> additionalParameters) {
       super(configuration);
       this.parameterType = parameterType;
       this.metaParameters = configuration.newMetaObject(additionalParameters);
@@ -91,31 +97,31 @@ public class SqlSourceBuilder extends BaseBuilder {
     private ParameterMapping buildParameterMapping(String content) {
       Map<String, String> propertiesMap = parseParameterMapping(content);
       String property = propertiesMap.get("property");
-      Class<?> propertyType;
+      JavaType propertyType;
       if (metaParameters.hasGetter(property)) { // issue #448 get type from additional params
-        propertyType = metaParameters.getGetterType(property);
+        propertyType = metaParameters.getGetterResolvedType(property);
       } else if (typeHandlerRegistry.hasTypeHandler(parameterType)) {
         propertyType = parameterType;
       } else if (JdbcType.CURSOR.name().equals(propertiesMap.get("jdbcType"))) {
-        propertyType = java.sql.ResultSet.class;
-      } else if (property == null || Map.class.isAssignableFrom(parameterType)) {
-        propertyType = Object.class;
+        propertyType = JavaTypeUtil.constructType(java.sql.ResultSet.class);
+      } else if (property == null || Map.class.isAssignableFrom(JavaTypeUtil.getRawClass(parameterType))) {
+        propertyType = JavaTypeUtil.CORE_TYPE_OBJECT;
       } else {
         MetaClass metaClass = MetaClass.forClass(parameterType, configuration.getReflectorFactory());
         if (metaClass.hasGetter(property)) {
-          propertyType = metaClass.getGetterType(property);
+          propertyType = metaClass.getGetterResolvedType(property);
         } else {
-          propertyType = Object.class;
+          propertyType = JavaTypeUtil.CORE_TYPE_OBJECT;
         }
       }
       ParameterMapping.Builder builder = new ParameterMapping.Builder(configuration, property, propertyType);
-      Class<?> javaType = propertyType;
+      JavaType javaType = propertyType;
       String typeHandlerAlias = null;
       for (Map.Entry<String, String> entry : propertiesMap.entrySet()) {
         String name = entry.getKey();
         String value = entry.getValue();
         if ("javaType".equals(name)) {
-          javaType = resolveClass(value);
+          javaType = resolveResolvedType(value);
           builder.javaType(javaType);
         } else if ("jdbcType".equals(name)) {
           builder.jdbcType(resolveJdbcType(value));

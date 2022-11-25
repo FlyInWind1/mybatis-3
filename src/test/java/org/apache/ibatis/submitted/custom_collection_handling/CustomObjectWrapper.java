@@ -17,6 +17,7 @@ package org.apache.ibatis.submitted.custom_collection_handling;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
@@ -65,7 +66,19 @@ public class CustomObjectWrapper implements org.apache.ibatis.reflection.wrapper
   }
 
   @Override
+  public JavaType getSetterResolvedType(String name) {
+    // Not Implemented
+    return null;
+  }
+
+  @Override
   public Class<?> getGetterType(String name) {
+    // Not Implemented
+    return null;
+  }
+
+  @Override
+  public JavaType getGetterResolvedType(String name) {
     // Not Implemented
     return null;
   }

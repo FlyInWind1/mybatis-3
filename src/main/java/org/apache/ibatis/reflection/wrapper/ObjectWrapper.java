@@ -15,11 +15,12 @@
  */
 package org.apache.ibatis.reflection.wrapper;
 
-import java.util.List;
-
+import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
+
+import java.util.List;
 
 /**
  * @author Clinton Begin
@@ -38,7 +39,11 @@ public interface ObjectWrapper {
 
   Class<?> getSetterType(String name);
 
+  JavaType getSetterResolvedType(String name);
+
   Class<?> getGetterType(String name);
+
+  JavaType getGetterResolvedType(String name);
 
   boolean hasSetter(String name);
 

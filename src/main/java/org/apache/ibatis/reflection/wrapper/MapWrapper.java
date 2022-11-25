@@ -19,10 +19,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
+import org.apache.ibatis.util.JavaTypeUtil;
 
 /**
  * @author Clinton Begin
@@ -72,39 +74,39 @@ public class MapWrapper extends BaseWrapper {
   }
 
   @Override
-  public Class<?> getSetterType(String name) {
+  public JavaType getSetterResolvedType(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
       MetaObject metaValue = metaObject.metaObjectForProperty(prop.getIndexedName());
       if (metaValue == SystemMetaObject.NULL_META_OBJECT) {
-        return Object.class;
+        return JavaTypeUtil.CORE_TYPE_OBJECT;
       } else {
-        return metaValue.getSetterType(prop.getChildren());
+        return metaValue.getSetterResolvedType(prop.getChildren());
       }
     } else {
       if (map.get(name) != null) {
-        return map.get(name).getClass();
+        return JavaTypeUtil.constructType(map.get(name).getClass());
       } else {
-        return Object.class;
+        return JavaTypeUtil.CORE_TYPE_OBJECT;
       }
     }
   }
 
   @Override
-  public Class<?> getGetterType(String name) {
+  public JavaType getGetterResolvedType(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
       MetaObject metaValue = metaObject.metaObjectForProperty(prop.getIndexedName());
       if (metaValue == SystemMetaObject.NULL_META_OBJECT) {
-        return Object.class;
+        return JavaTypeUtil.CORE_TYPE_OBJECT;
       } else {
-        return metaValue.getGetterType(prop.getChildren());
+        return metaValue.getGetterResolvedType(prop.getChildren());
       }
     } else {
       if (map.get(name) != null) {
-        return map.get(name).getClass();
+        return JavaTypeUtil.constructType(map.get(name).getClass());
       } else {
-        return Object.class;
+        return JavaTypeUtil.CORE_TYPE_OBJECT;
       }
     }
   }

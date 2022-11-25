@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.mapping.ParameterMode;
 import org.apache.ibatis.mapping.ResultSetType;
 import org.apache.ibatis.session.Configuration;
@@ -27,6 +28,7 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
+import org.apache.ibatis.util.JavaTypeUtil;
 
 /**
  * @author Clinton Begin
@@ -108,6 +110,12 @@ public abstract class BaseBuilder {
     }
   }
 
+  protected JavaType resolveResolvedType(String alias) {
+    // TODO: 11/21/22
+    Class<?> clazz = resolveClass(alias);
+    return JavaTypeUtil.constructType(clazz);
+  }
+
   protected <T> Class<? extends T> resolveClass(String alias) {
     if (alias == null) {
       return null;
@@ -120,6 +128,10 @@ public abstract class BaseBuilder {
   }
 
   protected TypeHandler<?> resolveTypeHandler(Class<?> javaType, String typeHandlerAlias) {
+    return resolveTypeHandler(JavaTypeUtil.constructType(javaType), typeHandlerAlias);
+  }
+
+  protected TypeHandler<?> resolveTypeHandler(JavaType javaType, String typeHandlerAlias) {
     if (typeHandlerAlias == null) {
       return null;
     }
@@ -141,6 +153,19 @@ public abstract class BaseBuilder {
     if (handler == null) {
       // not in registry, create a new one
       handler = typeHandlerRegistry.getInstance(javaType, typeHandlerType);
+    }
+    return handler;
+  }
+
+  protected TypeHandler<?> resolveTypeHandler(JavaType resolvedType, Class<? extends TypeHandler<?>> typeHandlerType) {
+    if (typeHandlerType == null) {
+      return null;
+    }
+    // javaType ignored for injected handlers see issue #746 for full detail
+    TypeHandler<?> handler = typeHandlerRegistry.getMappingTypeHandler(typeHandlerType);
+    if (handler == null) {
+      // not in registry, create a new one
+      handler = typeHandlerRegistry.getInstance(resolvedType, typeHandlerType);
     }
     return handler;
   }
