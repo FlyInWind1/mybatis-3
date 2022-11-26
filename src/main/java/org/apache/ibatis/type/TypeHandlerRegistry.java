@@ -15,11 +15,11 @@
  */
 package org.apache.ibatis.type;
 
-import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.binding.MapperMethod.ParamMap;
 import org.apache.ibatis.io.ResolverUtil;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
 import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
 
@@ -447,24 +447,8 @@ public final class TypeHandlerRegistry {
 
   // Construct a handler (used also from Builders)
 
-  @SuppressWarnings("unchecked")
   public <T> TypeHandler<T> getInstance(Class<?> javaTypeClass, Class<?> typeHandlerClass) {
-    if (javaTypeClass != null) {
-      try {
-        Constructor<?> c = typeHandlerClass.getConstructor(Class.class);
-        return (TypeHandler<T>) c.newInstance(javaTypeClass);
-      } catch (NoSuchMethodException ignored) {
-        // ignored
-      } catch (Exception e) {
-        throw new TypeException("Failed invoking constructor for handler " + typeHandlerClass, e);
-      }
-    }
-    try {
-      Constructor<?> c = typeHandlerClass.getConstructor();
-      return (TypeHandler<T>) c.newInstance();
-    } catch (Exception e) {
-      throw new TypeException("Unable to find a usable constructor for " + typeHandlerClass, e);
-    }
+    return getInstance(resolvedTypeFactory.constructType(javaTypeClass), typeHandlerClass);
   }
 
   @SuppressWarnings("unchecked")
@@ -474,17 +458,15 @@ public final class TypeHandlerRegistry {
       if (creator != null) {
         return (TypeHandler<T>) creator.apply(resolvedType);
       }
-      // find constructor for JavaType
-      Constructor<?>[] constructors = typeHandlerClass.getConstructors();
-      for (Constructor<?> constructor : constructors) {
-        try {
-          creator = t -> instanceWithResolvedType(constructor, t);
-          TypeHandler<?> typeHandler = creator.apply(resolvedType);
-          typeHandlerCreatorMap.put(typeHandlerClass, creator);
-          return (TypeHandler<T>) typeHandler;
-        } catch (TypeException | ClassCastException e) {
-          // ignored
-        }
+      // find constructor for ResolvedType
+      try {
+        Constructor<?> c = typeHandlerClass.getConstructor(ResolvedType.class);
+        creator = t -> instanceWithResolvedType(c, t);
+        TypeHandler<?> typeHandler = creator.apply(resolvedType);
+        typeHandlerCreatorMap.put(typeHandlerClass, creator);
+        return (TypeHandler<T>) typeHandler;
+      } catch (NoSuchMethodException ignored) {
+        // ignored
       }
       // constructor with class
       try {
