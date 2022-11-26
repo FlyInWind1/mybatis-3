@@ -21,3 +21,18 @@ Essentials
 * [See the docs](https://mybatis.org/mybatis-3)
 * [Download Latest](https://github.com/mybatis/mybatis-3/releases)
 * [Download Snapshot](https://oss.sonatype.org/content/repositories/snapshots/org/mybatis/mybatis/)
+
+### ResolvedType
+
+A wrap class bound Class and its TypeParameters, to resolve generic method parameter type or return type
+
+### Todo
+
+- [x] Use jackson JavaType instead of Class to parse GenericType
+- [x] Create an interface ResolvedType to hide JavaType
+- [ ] Impl ListTypeHandler SetTypeHandler
+- [ ] Compatible with spring-mybatis, mybatis-plus
+- [ ] Make xml resultType and resultMap not required
+- [ ] Register all handleable type of ArrayTypeHandler to TypeHandlerRegister
+- [ ] Impl SpringResolvedType wrap org.springframework.core.ResolvableType
+- [ ] Impl build in SimpleResolvedType
