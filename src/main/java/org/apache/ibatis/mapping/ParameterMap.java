@@ -18,9 +18,9 @@ package org.apache.ibatis.mapping;
 import java.util.Collections;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.util.JavaTypeUtil;
+import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
 
 /**
  * @author Clinton Begin
@@ -28,7 +28,7 @@ import org.apache.ibatis.util.JavaTypeUtil;
 public class ParameterMap {
 
   private String id;
-  private JavaType type;
+  private ResolvedType type;
   private List<ParameterMapping> parameterMappings;
 
   private ParameterMap() {
@@ -39,18 +39,18 @@ public class ParameterMap {
 
     public Builder(Configuration configuration, String id, Class<?> type, List<ParameterMapping> parameterMappings) {
       parameterMap.id = id;
-      parameterMap.type = JavaTypeUtil.constructType(type);
+      parameterMap.type = configuration.constructType(type);
       parameterMap.parameterMappings = parameterMappings;
     }
 
-    public Builder(Configuration configuration, String id, JavaType type, List<ParameterMapping> parameterMappings) {
+    public Builder(Configuration configuration, String id, ResolvedType type, List<ParameterMapping> parameterMappings) {
       parameterMap.id = id;
       parameterMap.type = type;
       parameterMap.parameterMappings = parameterMappings;
     }
 
     public Class<?> type() {
-      return JavaTypeUtil.getRawClass(parameterMap.type);
+      return ResolvedTypeUtil.getRawClass(parameterMap.type);
     }
 
     public ParameterMap build() {
@@ -65,10 +65,10 @@ public class ParameterMap {
   }
 
   public Class<?> getType() {
-    return JavaTypeUtil.getRawClass(type);
+    return ResolvedTypeUtil.getRawClass(type);
   }
 
-  public JavaType getResolvedType() {
+  public ResolvedType getResolvedType() {
     return type;
   }
 

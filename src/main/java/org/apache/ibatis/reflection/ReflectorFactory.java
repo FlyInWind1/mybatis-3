@@ -15,11 +15,18 @@
  */
 package org.apache.ibatis.reflection;
 
+import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
+
 public interface ReflectorFactory {
 
   boolean isClassCacheEnabled();
 
   void setClassCacheEnabled(boolean classCacheEnabled);
 
+  ResolvedTypeFactory getResolvedTypeFactory();
+
   Reflector findForClass(Class<?> type);
+
+  Reflector findForType(ResolvedType type);
 }

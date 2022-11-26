@@ -15,11 +15,10 @@
  */
 package org.apache.ibatis.session;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.util.JavaTypeUtil;
 
 /**
  * Specify the behavior when detects an unknown column (or unknown property type) of automatic mapping target.
@@ -34,7 +33,7 @@ public enum AutoMappingUnknownColumnBehavior {
    */
   NONE {
     @Override
-    public void doAction(MappedStatement mappedStatement, String columnName, String property, JavaType propertyType) {
+    public void doAction(MappedStatement mappedStatement, String columnName, String property, ResolvedType propertyType) {
       // do nothing
     }
   },
@@ -45,7 +44,7 @@ public enum AutoMappingUnknownColumnBehavior {
    */
   WARNING {
     @Override
-    public void doAction(MappedStatement mappedStatement, String columnName, String property, JavaType propertyType) {
+    public void doAction(MappedStatement mappedStatement, String columnName, String property, ResolvedType propertyType) {
       LogHolder.log.warn(buildMessage(mappedStatement, columnName, property, propertyType));
     }
   },
@@ -56,7 +55,7 @@ public enum AutoMappingUnknownColumnBehavior {
    */
   FAILING {
     @Override
-    public void doAction(MappedStatement mappedStatement, String columnName, String property, JavaType propertyType) {
+    public void doAction(MappedStatement mappedStatement, String columnName, String property, ResolvedType propertyType) {
       throw new SqlSessionException(buildMessage(mappedStatement, columnName, property, propertyType));
     }
   };
@@ -69,15 +68,15 @@ public enum AutoMappingUnknownColumnBehavior {
    * @param propertyType property type for mapping target (If this argument is not null, {@link org.apache.ibatis.type.TypeHandler} for property type is not registered)
      */
   public void doAction(MappedStatement mappedStatement, String columnName, String propertyName, Class<?> propertyType){
-    doAction(mappedStatement, columnName, propertyName, JavaTypeUtil.constructType(propertyType));
+    doAction(mappedStatement, columnName, propertyName, mappedStatement.getConfiguration().constructType(propertyType));
   }
 
-  public abstract void doAction(MappedStatement mappedStatement, String columnName, String propertyName, JavaType propertyType);
+  public abstract void doAction(MappedStatement mappedStatement, String columnName, String propertyName, ResolvedType propertyType);
 
   /**
    * build error message.
    */
-  private static String buildMessage(MappedStatement mappedStatement, String columnName, String property, JavaType propertyType) {
+  private static String buildMessage(MappedStatement mappedStatement, String columnName, String property, ResolvedType propertyType) {
     return new StringBuilder("Unknown column is detected on '")
       .append(mappedStatement.getId())
       .append("' auto-mapping. Mapping parameters are ")

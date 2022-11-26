@@ -20,12 +20,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
-import org.apache.ibatis.util.JavaTypeUtil;
+import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
 
 /**
  * @author Clinton Begin
@@ -35,7 +35,7 @@ public class ResultMapping {
   private Configuration configuration;
   private String property;
   private String column;
-  private JavaType resolvedType;
+  private ResolvedType resolvedType;
   private JdbcType jdbcType;
   private TypeHandler<?> typeHandler;
   private String nestedResultMapId;
@@ -63,13 +63,13 @@ public class ResultMapping {
     public Builder(Configuration configuration, String property, String column, Class<?> javaType) {
       this(configuration, property);
       resultMapping.column = column;
-      resultMapping.resolvedType = JavaTypeUtil.constructType(javaType);
+      resultMapping.resolvedType = configuration.constructType(javaType);
     }
 
-    public Builder(Configuration configuration, String property, String column, JavaType JavaType) {
+    public Builder(Configuration configuration, String property, String column, ResolvedType ResolvedType) {
       this(configuration, property);
       resultMapping.column = column;
-      resultMapping.resolvedType = JavaType;
+      resultMapping.resolvedType = ResolvedType;
     }
 
     public Builder(Configuration configuration, String property) {
@@ -81,7 +81,7 @@ public class ResultMapping {
     }
 
     public Builder javaType(Class<?> javaType) {
-      resultMapping.resolvedType = JavaTypeUtil.constructType(javaType);
+      resultMapping.resolvedType = resultMapping.configuration.constructType(javaType);
       return this;
     }
 
@@ -199,12 +199,12 @@ public class ResultMapping {
     return column;
   }
 
-  public JavaType getResolvedType() {
+  public ResolvedType getResolvedType() {
     return resolvedType;
   }
 
   public Class<?> getJavaType() {
-    return JavaTypeUtil.getRawClass(resolvedType);
+    return ResolvedTypeUtil.getRawClass(resolvedType);
   }
 
   public JdbcType getJdbcType() {

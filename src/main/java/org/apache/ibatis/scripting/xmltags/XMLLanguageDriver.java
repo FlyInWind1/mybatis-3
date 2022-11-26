@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.scripting.xmltags;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.mapping.BoundSql;
@@ -40,13 +40,13 @@ public class XMLLanguageDriver implements ResolvedLanguageDriver {
   }
 
   @Override
-  public SqlSource createSqlSource(Configuration configuration, XNode script, JavaType parameterType) {
+  public SqlSource createSqlSource(Configuration configuration, XNode script, ResolvedType parameterType) {
     XMLScriptBuilder builder = new XMLScriptBuilder(configuration, script, parameterType);
     return builder.parseScriptNode();
   }
 
   @Override
-  public SqlSource createSqlSource(Configuration configuration, String script, JavaType parameterType) {
+  public SqlSource createSqlSource(Configuration configuration, String script, ResolvedType parameterType) {
     // issue #3
     if (script.startsWith("<script>")) {
       XPathParser parser = new XPathParser(script, false, configuration.getVariables(), new XMLMapperEntityResolver());

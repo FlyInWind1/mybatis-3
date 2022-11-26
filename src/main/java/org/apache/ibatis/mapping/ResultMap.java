@@ -24,14 +24,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.builder.BuilderException;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.reflection.ParamNameUtil;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.util.JavaTypeUtil;
 
 /**
  * @author Clinton Begin
@@ -40,7 +39,7 @@ public class ResultMap {
   private Configuration configuration;
 
   private String id;
-  private JavaType type;
+  private ResolvedType type;
   private List<ResultMapping> resultMappings;
   private List<ResultMapping> idResultMappings;
   private List<ResultMapping> constructorResultMappings;
@@ -67,12 +66,12 @@ public class ResultMap {
     public Builder(Configuration configuration, String id, Class<?> type, List<ResultMapping> resultMappings, Boolean autoMapping) {
       resultMap.configuration = configuration;
       resultMap.id = id;
-      resultMap.type = JavaTypeUtil.constructType(type);
+      resultMap.type = configuration.constructType(type);
       resultMap.resultMappings = resultMappings;
       resultMap.autoMapping = autoMapping;
     }
 
-    public Builder(Configuration configuration, String id, JavaType type, List<ResultMapping> resultMappings, Boolean autoMapping) {
+    public Builder(Configuration configuration, String id, ResolvedType type, List<ResultMapping> resultMappings, Boolean autoMapping) {
       resultMap.configuration = configuration;
       resultMap.id = id;
       resultMap.type = type;
@@ -232,7 +231,7 @@ public class ResultMap {
     return type.getRawClass();
   }
 
-  public JavaType getResolvedType() {
+  public ResolvedType getResolvedType() {
     return type;
   }
 

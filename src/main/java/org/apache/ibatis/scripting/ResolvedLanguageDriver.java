@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.scripting;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -63,7 +63,7 @@ public interface ResolvedLanguageDriver extends LanguageDriver{
    * @return the sql source
    */
   @Override
-  SqlSource createSqlSource(Configuration configuration, XNode script, JavaType parameterType);
+  SqlSource createSqlSource(Configuration configuration, XNode script, ResolvedType parameterType);
 
   /**
    * Creates an {@link SqlSource} that will hold the statement read from an annotation.
@@ -89,6 +89,6 @@ public interface ResolvedLanguageDriver extends LanguageDriver{
    * @return the sql source
    */
   @Override
-  SqlSource createSqlSource(Configuration configuration, String script, JavaType parameterType);
+  SqlSource createSqlSource(Configuration configuration, String script, ResolvedType parameterType);
 
 }

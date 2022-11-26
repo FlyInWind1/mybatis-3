@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.reflection.wrapper;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
@@ -39,11 +39,11 @@ public interface ObjectWrapper {
 
   Class<?> getSetterType(String name);
 
-  JavaType getSetterResolvedType(String name);
+  ResolvedType getSetterResolvedType(String name);
 
   Class<?> getGetterType(String name);
 
-  JavaType getGetterResolvedType(String name);
+  ResolvedType getGetterResolvedType(String name);
 
   boolean hasSetter(String name);
 

@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import org.apache.ibatis.util.JavaTypeUtil;
 import org.junit.jupiter.api.Test;
 
 class GenericTypeSupportedInHierarchiesTestCase {
@@ -32,7 +31,7 @@ class GenericTypeSupportedInHierarchiesTestCase {
 
   @Test
   void detectsTheResolvedTypeTraversingTheHierarchy() {
-    assertEquals(JavaTypeUtil.constructType(String.class), new CustomStringTypeHandler().getResolvedType());
+    assertEquals(String.class, new CustomStringTypeHandler().getRawType());
   }
 
   /**

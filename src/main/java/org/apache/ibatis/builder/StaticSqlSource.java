@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.builder;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.mapping.SqlSource;
@@ -30,7 +30,7 @@ public class StaticSqlSource implements SqlSource {
 
   private final String sql;
   private final List<ParameterMapping> parameterMappings;
-  private final JavaType parameterObjectType;
+  private final ResolvedType parameterObjectType;
   private final Configuration configuration;
 
   public StaticSqlSource(Configuration configuration, String sql) {
@@ -45,7 +45,7 @@ public class StaticSqlSource implements SqlSource {
 //    throw new UnsupportedOperationException();
   }
 
-  public StaticSqlSource(Configuration configuration, String sql, List<ParameterMapping> parameterMappings, JavaType parameterObjectType) {
+  public StaticSqlSource(Configuration configuration, String sql, List<ParameterMapping> parameterMappings, ResolvedType parameterObjectType) {
     this.sql = sql;
     this.parameterMappings = parameterMappings;
     this.configuration = configuration;

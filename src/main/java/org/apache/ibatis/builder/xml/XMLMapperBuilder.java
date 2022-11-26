@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.builder.BaseBuilder;
 import org.apache.ibatis.builder.BuilderException;
 import org.apache.ibatis.builder.CacheRefResolver;
@@ -214,7 +214,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     for (XNode parameterMapNode : list) {
       String id = parameterMapNode.getStringAttribute("id");
       String type = parameterMapNode.getStringAttribute("type");
-      JavaType parameterClass = resolveResolvedType(type);
+      ResolvedType parameterClass = resolveResolvedType(type);
       List<XNode> parameterNodes = parameterMapNode.evalNodes("parameter");
       List<ParameterMapping> parameterMappings = new ArrayList<>();
       for (XNode parameterNode : parameterNodes) {
@@ -226,10 +226,10 @@ public class XMLMapperBuilder extends BaseBuilder {
         String typeHandler = parameterNode.getStringAttribute("typeHandler");
         Integer numericScale = parameterNode.getIntAttribute("numericScale");
         ParameterMode modeEnum = resolveParameterMode(mode);
-        JavaType javaTypeClass = resolveResolvedType(javaType);
+        ResolvedType resolvedTypeClass = resolveResolvedType(javaType);
         JdbcType jdbcTypeEnum = resolveJdbcType(jdbcType);
         Class<? extends TypeHandler<?>> typeHandlerClass = resolveClass(typeHandler);
-        ParameterMapping parameterMapping = builderAssistant.buildParameterMapping(parameterClass, property, javaTypeClass, jdbcTypeEnum, resultMap, modeEnum, typeHandlerClass, numericScale);
+        ParameterMapping parameterMapping = builderAssistant.buildParameterMapping(parameterClass, property, resolvedTypeClass, jdbcTypeEnum, resultMap, modeEnum, typeHandlerClass, numericScale);
         parameterMappings.add(parameterMapping);
       }
       builderAssistant.addParameterMap(id, parameterClass, parameterMappings);

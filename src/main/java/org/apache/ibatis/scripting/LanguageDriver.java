@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.scripting;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -23,7 +23,7 @@ import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.util.JavaTypeUtil;
+import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
 
 public interface LanguageDriver {
 
@@ -59,8 +59,8 @@ public interface LanguageDriver {
    * @param parameterType input parameter type got from a mapper method or specified in the parameterType xml attribute. Can be null.
    * @return the sql source
    */
-  default SqlSource createSqlSource(Configuration configuration, XNode script, JavaType parameterType) {
-    return createSqlSource(configuration, script, JavaTypeUtil.getRawClass(parameterType));
+  default SqlSource createSqlSource(Configuration configuration, XNode script, ResolvedType parameterType) {
+    return createSqlSource(configuration, script, ResolvedTypeUtil.getRawClass(parameterType));
   }
 
   /**
@@ -83,8 +83,8 @@ public interface LanguageDriver {
    * @param parameterType input parameter type got from a mapper method or specified in the parameterType xml attribute. Can be null.
    * @return the sql source
    */
-  default SqlSource createSqlSource(Configuration configuration, String script, JavaType parameterType) {
-    return createSqlSource(configuration, script, JavaTypeUtil.getRawClass(parameterType));
+  default SqlSource createSqlSource(Configuration configuration, String script, ResolvedType parameterType) {
+    return createSqlSource(configuration, script, ResolvedTypeUtil.getRawClass(parameterType));
   }
 
 }

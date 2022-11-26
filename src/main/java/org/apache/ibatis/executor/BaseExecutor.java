@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.executor;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cache.impl.PerpetualCache;
@@ -32,14 +32,12 @@ import org.apache.ibatis.session.LocalCacheScope;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
-import org.apache.ibatis.type.TypeHandlerRegistry;
-import org.apache.ibatis.util.JavaTypeUtil;
+import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.apache.ibatis.executor.ExecutionPlaceholder.EXECUTION_PLACEHOLDER;
@@ -344,14 +342,14 @@ public abstract class BaseExecutor implements Executor {
     this.wrapper = wrapper;
   }
 
-  private boolean parameterObjectIsValue(JavaType type, Object parameterObject) {
+  private boolean parameterObjectIsValue(ResolvedType type, Object parameterObject) {
     // BaseExecutorTest HashMapTypeHandlerTest
     Class<?> clazz = parameterObject.getClass();
     if (clazz == MapperMethod.ParamMap.class) {
       return false;
     }
-    if (JavaTypeUtil.isNotInstance(type, parameterObject)) {
-      type = JavaTypeUtil.constructType(clazz);
+    if (ResolvedTypeUtil.isNotInstance(type, parameterObject)) {
+      type = configuration.getResolvedTypeFactory().constructType(clazz);
     }
     return configuration.getTypeHandlerRegistry().hasTypeHandler(type);
   }

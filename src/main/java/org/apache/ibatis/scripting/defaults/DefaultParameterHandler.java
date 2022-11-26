@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.scripting.defaults;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
@@ -29,7 +29,7 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeException;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
-import org.apache.ibatis.util.JavaTypeUtil;
+import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -102,9 +102,9 @@ public class DefaultParameterHandler implements ParameterHandler {
       // BaseExecutorTest HashMapTypeHandlerTest
       return false;
     }
-    JavaType type = mappedStatement.getParameterMap().getResolvedType();
-    if (JavaTypeUtil.isNotInstance(type, parameterObject)) {
-      type = JavaTypeUtil.constructType(clazz);
+    ResolvedType type = mappedStatement.getParameterMap().getResolvedType();
+    if (ResolvedTypeUtil.isNotInstance(type, parameterObject)) {
+      type = configuration.constructType(clazz);
     }
     return typeHandlerRegistry.hasTypeHandler(type);
   }

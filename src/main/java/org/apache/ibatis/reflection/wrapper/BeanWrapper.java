@@ -17,7 +17,7 @@ package org.apache.ibatis.reflection.wrapper;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.reflection.ExceptionUtil;
 import org.apache.ibatis.reflection.MetaClass;
 import org.apache.ibatis.reflection.MetaObject;
@@ -77,7 +77,7 @@ public class BeanWrapper extends BaseWrapper {
   }
 
   @Override
-  public JavaType getSetterResolvedType(String name) {
+  public ResolvedType getSetterResolvedType(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
       MetaObject metaValue = metaObject.metaObjectForProperty(prop.getIndexedName());
@@ -92,7 +92,7 @@ public class BeanWrapper extends BaseWrapper {
   }
 
   @Override
-  public JavaType getGetterResolvedType(String name) {
+  public ResolvedType getGetterResolvedType(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
       MetaObject metaValue = metaObject.metaObjectForProperty(prop.getIndexedName());

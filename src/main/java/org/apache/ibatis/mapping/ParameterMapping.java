@@ -17,12 +17,11 @@ package org.apache.ibatis.mapping;
 
 import java.sql.ResultSet;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
-import org.apache.ibatis.util.JavaTypeUtil;
 
 /**
  * @author Clinton Begin
@@ -33,7 +32,7 @@ public class ParameterMapping {
 
   private String property;
   private ParameterMode mode;
-  private JavaType resolvedType = JavaTypeUtil.CORE_TYPE_OBJECT;
+  private ResolvedType resolvedType;
   private JdbcType jdbcType;
   private Integer numericScale;
   private TypeHandler<?> typeHandler;
@@ -51,20 +50,21 @@ public class ParameterMapping {
       parameterMapping.configuration = configuration;
       parameterMapping.property = property;
       parameterMapping.typeHandler = typeHandler;
+      parameterMapping.resolvedType = parameterMapping.configuration.getResolvedTypeFactory().getObjectType();
       parameterMapping.mode = ParameterMode.IN;
     }
 
     public Builder(Configuration configuration, String property, Class<?> javaType) {
       parameterMapping.configuration = configuration;
       parameterMapping.property = property;
-      parameterMapping.resolvedType = JavaTypeUtil.constructType(javaType);
+      parameterMapping.resolvedType = parameterMapping.configuration.constructType(javaType);
       parameterMapping.mode = ParameterMode.IN;
     }
 
-    public Builder(Configuration configuration, String property, JavaType javaType) {
+    public Builder(Configuration configuration, String property, ResolvedType resolvedType) {
       parameterMapping.configuration = configuration;
       parameterMapping.property = property;
-      parameterMapping.resolvedType = javaType;
+      parameterMapping.resolvedType = resolvedType;
       parameterMapping.mode = ParameterMode.IN;
     }
 
@@ -74,12 +74,12 @@ public class ParameterMapping {
     }
 
     public Builder javaType(Class<?> javaType) {
-      parameterMapping.resolvedType = JavaTypeUtil.constructType(javaType);
+      parameterMapping.resolvedType = parameterMapping.configuration.constructType(javaType);
       return this;
     }
 
-    public Builder javaType(JavaType javaType) {
-      parameterMapping.resolvedType = javaType;
+    public Builder javaType(ResolvedType resolvedType) {
+      parameterMapping.resolvedType = resolvedType;
       return this;
     }
 
@@ -164,7 +164,7 @@ public class ParameterMapping {
    * @return the java type
    */
   public Class<?> getJavaType() {
-    return JavaTypeUtil.getRawClass(resolvedType);
+    return resolvedType.getRawClass();
   }
 
   /**
@@ -172,7 +172,7 @@ public class ParameterMapping {
    *
    * @return the java type
    */
-  public JavaType getResolvedType() {
+  public ResolvedType getResolvedType() {
     return resolvedType;
   }
 

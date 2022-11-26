@@ -32,8 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.annotations.AutomapConstructor;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.binding.MapperMethod.ParamMap;
@@ -68,7 +67,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
-import org.apache.ibatis.util.JavaTypeUtil;
+import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
 import org.apache.ibatis.util.MapUtil;
 
 /**
@@ -89,6 +88,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   private final ResultHandler<?> resultHandler;
   private final BoundSql boundSql;
   private final TypeHandlerRegistry typeHandlerRegistry;
+  private final ResolvedTypeFactory resolvedTypeFactory;
   private final ObjectFactory objectFactory;
   private final ReflectorFactory reflectorFactory;
 
@@ -136,6 +136,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     this.parameterHandler = parameterHandler;
     this.boundSql = boundSql;
     this.typeHandlerRegistry = configuration.getTypeHandlerRegistry();
+    this.resolvedTypeFactory = configuration.getResolvedTypeFactory();
     this.objectFactory = configuration.getObjectFactory();
     this.reflectorFactory = configuration.getReflectorFactory();
     this.resultHandler = resultHandler;
@@ -549,7 +550,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
           if (resultMap.getMappedProperties().contains(property)) {
             continue;
           }
-          final JavaType propertyType = metaObject.getSetterResolvedType(property);
+          final ResolvedType propertyType = metaObject.getSetterResolvedType(property);
           if (typeHandlerRegistry.hasTypeHandler(propertyType, rsw.getJdbcType(columnName))) {
             final TypeHandler<?> typeHandler = rsw.getTypeHandler(propertyType, columnName);
             autoMapping.add(new UnMappedColumnAutoMapping(columnName, property, typeHandler, propertyType.isPrimitive()));
@@ -559,7 +560,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
           }
         } else {
           configuration.getAutoMappingUnknownColumnBehavior()
-            .doAction(mappedStatement, columnName, (property != null) ? property : propertyName, (JavaType) null);
+            .doAction(mappedStatement, columnName, (property != null) ? property : propertyName, (ResolvedType) null);
         }
       }
       autoMappingsCache.put(mapKey, autoMapping);
@@ -659,7 +660,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 
   private Object createResultObject(ResultSetWrapper rsw, ResultMap resultMap, List<Class<?>> constructorArgTypes, List<Object> constructorArgs, String columnPrefix)
       throws SQLException {
-    final JavaType resultType = resultMap.getResolvedType();
+    final ResolvedType resultType = resultMap.getResolvedType();
     final MetaClass metaType = MetaClass.forClass(resultType, reflectorFactory);
     final List<ResultMapping> constructorMappings = resultMap.getConstructorResultMappings();
     if (hasTypeHandlerForResultObject(rsw, resultType)) {
@@ -761,7 +762,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   private boolean applyColumnOrderBasedConstructorAutomapping(ResultSetWrapper rsw, List<Class<?>> constructorArgTypes,
       List<Object> constructorArgs, Constructor<?> constructor, boolean foundValues) throws SQLException {
     for (int i = 0; i < constructor.getParameterTypes().length; i++) {
-      JavaType parameterType = JavaTypeUtil.constructType(constructor.getParameters()[i].getParameterizedType());
+      ResolvedType parameterType = resolvedTypeFactory.constructType(constructor.getParameters()[i].getParameterizedType());
       String columnName = rsw.getColumnNames().get(i);
       TypeHandler<?> typeHandler = rsw.getTypeHandler(parameterType, columnName);
       Object value = typeHandler.getResult(rsw.getResultSet(), columnName);
@@ -783,7 +784,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
       String paramName = paramAnno == null ? param.getName() : paramAnno.value();
       for (String columnName : rsw.getColumnNames()) {
         if (columnMatchesParam(columnName, paramName, columnPrefix)) {
-          JavaType paramType = JavaTypeUtil.constructType(param.getParameterizedType());
+          ResolvedType paramType = resolvedTypeFactory.constructType(param.getParameterizedType());
           TypeHandler<?> typeHandler = rsw.getTypeHandler(paramType, columnName);
           Object value = typeHandler.getResult(rsw.getResultSet(), columnName);
           constructorArgTypes.add(paramType.getRawClass());
@@ -824,7 +825,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   }
 
   private Object createPrimitiveResultObject(ResultSetWrapper rsw, ResultMap resultMap, String columnPrefix) throws SQLException {
-    final JavaType resultType = resultMap.getResolvedType();
+    final ResolvedType resultType = resultMap.getResolvedType();
     final String columnName;
     if (!resultMap.getResultMappings().isEmpty()) {
       final List<ResultMapping> resultMappingList = resultMap.getResultMappings();
@@ -844,7 +845,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   private Object getNestedQueryConstructorValue(ResultSet rs, ResultMapping constructorMapping, String columnPrefix) throws SQLException {
     final String nestedQueryId = constructorMapping.getNestedQueryId();
     final MappedStatement nestedQuery = configuration.getMappedStatement(nestedQueryId);
-    final JavaType nestedQueryParameterType = nestedQuery.getParameterMap().getResolvedType();
+    final ResolvedType nestedQueryParameterType = nestedQuery.getParameterMap().getResolvedType();
     final Object nestedQueryParameterObject = prepareParameterForNestedQuery(rs, constructorMapping, nestedQueryParameterType, columnPrefix);
     Object value = null;
     if (nestedQueryParameterObject != null) {
@@ -862,7 +863,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     final String nestedQueryId = propertyMapping.getNestedQueryId();
     final String property = propertyMapping.getProperty();
     final MappedStatement nestedQuery = configuration.getMappedStatement(nestedQueryId);
-    final JavaType nestedQueryParameterType = nestedQuery.getParameterMap().getResolvedType();
+    final ResolvedType nestedQueryParameterType = nestedQuery.getParameterMap().getResolvedType();
     final Object nestedQueryParameterObject = prepareParameterForNestedQuery(rs, propertyMapping, nestedQueryParameterType, columnPrefix);
     Object value = null;
     if (nestedQueryParameterObject != null) {
@@ -885,7 +886,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     return value;
   }
 
-  private Object prepareParameterForNestedQuery(ResultSet rs, ResultMapping resultMapping, JavaType parameterType, String columnPrefix) throws SQLException {
+  private Object prepareParameterForNestedQuery(ResultSet rs, ResultMapping resultMapping, ResolvedType parameterType, String columnPrefix) throws SQLException {
     if (resultMapping.isCompositeResult()) {
       return prepareCompositeKeyParameter(rs, resultMapping, parameterType, columnPrefix);
     } else {
@@ -893,7 +894,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     }
   }
 
-  private Object prepareSimpleKeyParameter(ResultSet rs, ResultMapping resultMapping, JavaType parameterType, String columnPrefix) throws SQLException {
+  private Object prepareSimpleKeyParameter(ResultSet rs, ResultMapping resultMapping, ResolvedType parameterType, String columnPrefix) throws SQLException {
     final TypeHandler<?> typeHandler;
     if (typeHandlerRegistry.hasTypeHandler(parameterType)) {
       typeHandler = typeHandlerRegistry.getTypeHandler(parameterType);
@@ -903,12 +904,12 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     return typeHandler.getResult(rs, prependPrefix(resultMapping.getColumn(), columnPrefix));
   }
 
-  private Object prepareCompositeKeyParameter(ResultSet rs, ResultMapping resultMapping, JavaType parameterType, String columnPrefix) throws SQLException {
+  private Object prepareCompositeKeyParameter(ResultSet rs, ResultMapping resultMapping, ResolvedType parameterType, String columnPrefix) throws SQLException {
     final Object parameterObject = instantiateParameterObject(parameterType);
     final MetaObject metaObject = configuration.newMetaObject(parameterObject);
     boolean foundValues = false;
     for (ResultMapping innerResultMapping : resultMapping.getComposites()) {
-      final JavaType propType = metaObject.getSetterResolvedType(innerResultMapping.getProperty());
+      final ResolvedType propType = metaObject.getSetterResolvedType(innerResultMapping.getProperty());
       final TypeHandler<?> typeHandler = typeHandlerRegistry.getTypeHandler(propType);
       final Object propValue = typeHandler.getResult(rs, prependPrefix(innerResultMapping.getColumn(), columnPrefix));
       // issue #353 & #560 do not execute nested query if key is null
@@ -920,7 +921,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     return foundValues ? parameterObject : null;
   }
 
-  private Object instantiateParameterObject(JavaType parameterType) {
+  private Object instantiateParameterObject(ResolvedType parameterType) {
     if (parameterType == null) {
       return new HashMap<>();
     } else if (ParamMap.class.equals(parameterType.getRawClass())) {
@@ -1213,7 +1214,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     return null;
   }
 
-  private boolean hasTypeHandlerForResultObject(ResultSetWrapper rsw, JavaType resultType) {
+  private boolean hasTypeHandlerForResultObject(ResultSetWrapper rsw, ResolvedType resultType) {
     if (rsw.getColumnNames().size() == 1) {
       return typeHandlerRegistry.hasTypeHandler(resultType, rsw.getJdbcType(rsw.getColumnNames().get(0)));
     }

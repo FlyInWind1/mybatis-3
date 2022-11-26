@@ -15,13 +15,13 @@
  */
 package org.apache.ibatis.reflection;
 
-import com.fasterxml.jackson.databind.JavaType;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.binding.MapperMethod.ParamMap;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.apache.ibatis.util.JavaTypeUtil;
+import org.apache.ibatis.type.resolved.ResolvedMethod;
+import org.apache.ibatis.type.resolved.ResolvedType;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -51,18 +51,23 @@ public class ParamNameResolver {
   private boolean hasParamAnnotation;
 
   public ParamNameResolver(Configuration config, Method method) {
-    this(config, method, method.getDeclaringClass());
+    this(config, config.constructType(method.getDeclaringClass()).resolveMethod(method));
   }
 
-  public ParamNameResolver(Configuration config, Method method, Class<?> mapperClass) {
+  public ParamNameResolver(Configuration config, Method method, Class<?> clazz) {
+    this(config, config.constructType(clazz).resolveMethod(method));
+  }
+
+  public ParamNameResolver(Configuration config, ResolvedMethod resolvedMethod) {
+    Method method = resolvedMethod.getMethod();
     this.useActualParamName = config.isUseActualParamName();
-    final JavaType[] parameterTypes = JavaTypeUtil.resolveParameterTypes(mapperClass, method);
+    final ResolvedType[] parameterTypes = resolvedMethod.getParameterTypes();
     final Annotation[][] paramAnnotations = method.getParameterAnnotations();
     final SortedMap<Integer, String> map = new TreeMap<>();
     int paramCount = paramAnnotations.length;
     // get names from @Param annotations
     for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
-      JavaType resolvedType = parameterTypes[paramIndex];
+      ResolvedType resolvedType = parameterTypes[paramIndex];
       if (isSpecialParameter(resolvedType.getRawClass())) {
         // skip special parameters
         continue;
@@ -147,7 +152,7 @@ public class ParamNameResolver {
   /**
    * Wrap to a {@link ParamMap} if object is {@link Collection} or array.
    *
-   * @param object a parameter object
+   * @param object          a parameter object
    * @param actualParamName an actual parameter name
    *                        (If specify a name, set an object to {@link ParamMap} with specified name)
    * @return a {@link ParamMap}

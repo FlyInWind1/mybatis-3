@@ -15,11 +15,11 @@
  */
 package org.apache.ibatis.executor.resultset;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.*;
-import org.apache.ibatis.util.JavaTypeUtil;
+import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -36,7 +36,7 @@ public class ResultSetWrapper {
   private final List<String> columnNames = new ArrayList<>();
   private final List<String> classNames = new ArrayList<>();
   private final List<JdbcType> jdbcTypes = new ArrayList<>();
-  private final Map<String, Map<JavaType, TypeHandler<?>>> typeHandlerMap = new HashMap<>();
+  private final Map<String, Map<ResolvedType, TypeHandler<?>>> typeHandlerMap = new HashMap<>();
   private final Map<String, List<String>> mappedColumnNamesMap = new HashMap<>();
   private final Map<String, List<String>> unMappedColumnNamesMap = new HashMap<>();
 
@@ -88,7 +88,7 @@ public class ResultSetWrapper {
    * @return the type handler
    */
   public TypeHandler<?> getTypeHandler(Class<?> propertyType, String columnName) {
-    return getTypeHandler(JavaTypeUtil.constructType(propertyType), columnName);
+    return getTypeHandler(typeHandlerRegistry.getResolvedTypeFactory().constructType(propertyType), columnName);
   }
 
   /**
@@ -100,9 +100,9 @@ public class ResultSetWrapper {
    * @param columnName   the column name
    * @return the type handler
    */
-  public TypeHandler<?> getTypeHandler(JavaType propertyType, String columnName) {
+  public TypeHandler<?> getTypeHandler(ResolvedType propertyType, String columnName) {
     TypeHandler<?> handler = null;
-    Map<JavaType, TypeHandler<?>> columnHandlers = typeHandlerMap.get(columnName);
+    Map<ResolvedType, TypeHandler<?>> columnHandlers = typeHandlerMap.get(columnName);
     if (columnHandlers == null) {
       columnHandlers = new HashMap<>();
       typeHandlerMap.put(columnName, columnHandlers);
@@ -116,11 +116,11 @@ public class ResultSetWrapper {
       // See issue #59 comment 10
       if (handler == null || handler instanceof UnknownTypeHandler) {
         final int index = columnNames.indexOf(columnName);
-        final JavaType javaType = resolveClass(classNames.get(index));
-        if (javaType != null && jdbcType != null) {
-          handler = typeHandlerRegistry.getTypeHandler(javaType, jdbcType);
-        } else if (javaType != null) {
-          handler = typeHandlerRegistry.getTypeHandler(javaType);
+        final ResolvedType resolvedType = resolveClass(classNames.get(index));
+        if (resolvedType != null && jdbcType != null) {
+          handler = typeHandlerRegistry.getTypeHandler(resolvedType, jdbcType);
+        } else if (resolvedType != null) {
+          handler = typeHandlerRegistry.getTypeHandler(resolvedType);
         } else if (jdbcType != null) {
           handler = typeHandlerRegistry.getTypeHandler(jdbcType);
         }
@@ -133,11 +133,11 @@ public class ResultSetWrapper {
     return handler;
   }
 
-  private JavaType resolveClass(String className) {
+  private ResolvedType resolveClass(String className) {
 //    try {
     // #699 className could be null
     if (className != null) {
-      return JavaTypeUtil.constructFromCanonical(className);
+      return typeHandlerRegistry.getResolvedTypeFactory().constructFromCanonical(className);
     }
 //    }
 //    catch (IllegalArgumentException e) {

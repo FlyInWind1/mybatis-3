@@ -21,7 +21,9 @@ import java.util.Map;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.ReflectionException;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
-import org.apache.ibatis.util.JavaTypeUtil;
+import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
+import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
 
 /**
  * @author Clinton Begin
@@ -29,10 +31,12 @@ import org.apache.ibatis.util.JavaTypeUtil;
 public abstract class BaseWrapper implements ObjectWrapper {
 
   protected static final Object[] NO_ARGUMENTS = new Object[0];
+  protected final ResolvedTypeFactory resolvedTypeFactory;
   protected final MetaObject metaObject;
 
   protected BaseWrapper(MetaObject metaObject) {
     this.metaObject = metaObject;
+    this.resolvedTypeFactory = metaObject.getReflectorFactory().getResolvedTypeFactory();
   }
 
   protected Object resolveCollection(PropertyTokenizer prop, Object object) {
@@ -105,14 +109,18 @@ public abstract class BaseWrapper implements ObjectWrapper {
     }
   }
 
+  protected ResolvedType constructType(Class<?> clazz) {
+    return resolvedTypeFactory.constructType(clazz);
+  }
+
   @Override
   public Class<?> getSetterType(String name) {
-    return JavaTypeUtil.getRawClass(getSetterResolvedType(name));
+    return getSetterResolvedType(name).getRawClass();
   }
 
   @Override
   public Class<?> getGetterType(String name) {
-    return JavaTypeUtil.getRawClass(getGetterResolvedType(name));
+    return getGetterResolvedType(name).getRawClass();
   }
 
 }

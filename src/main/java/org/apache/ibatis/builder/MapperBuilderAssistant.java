@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.builder;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.cache.decorators.LruCache;
 import org.apache.ibatis.cache.impl.PerpetualCache;
@@ -27,7 +27,6 @@ import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
-import org.apache.ibatis.util.JavaTypeUtil;
 
 import java.util.*;
 
@@ -37,7 +36,7 @@ import java.util.*;
 public class MapperBuilderAssistant extends BaseBuilder {
 
   private String currentNamespace;
-  private JavaType mapperType;
+  private ResolvedType mapperType;
   private final String resource;
   private Cache currentCache;
   private boolean unresolvedCacheRef; // issue #676
@@ -52,7 +51,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
     return currentNamespace;
   }
 
-  public JavaType getMapperType() {
+  public ResolvedType getMapperType() {
     return mapperType;
   }
 
@@ -68,7 +67,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
 
     this.currentNamespace = currentNamespace;
     try {
-      this.mapperType = JavaTypeUtil.constructFromCanonical(currentNamespace);
+      this.mapperType = resolvedTypeFactory.constructFromCanonical(currentNamespace);
     } catch (IllegalArgumentException e) {
       // ignore
     }
@@ -135,10 +134,10 @@ public class MapperBuilderAssistant extends BaseBuilder {
   }
 
   public ParameterMap addParameterMap(String id, Class<?> parameterClass, List<ParameterMapping> parameterMappings) {
-    return addParameterMap(id, JavaTypeUtil.constructType(parameterClass), parameterMappings);
+    return addParameterMap(id, constructType(parameterClass), parameterMappings);
   }
 
-  public ParameterMap addParameterMap(String id, JavaType parameterClass, List<ParameterMapping> parameterMappings) {
+  public ParameterMap addParameterMap(String id, ResolvedType parameterClass, List<ParameterMapping> parameterMappings) {
     id = applyCurrentNamespace(id, false);
     ParameterMap parameterMap = new ParameterMap.Builder(configuration, id, parameterClass, parameterMappings).build();
     configuration.addParameterMap(parameterMap);
@@ -155,9 +154,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
     Class<? extends TypeHandler<?>> typeHandler,
     Integer numericScale) {
     return buildParameterMapping(
-      JavaTypeUtil.constructType(parameterType),
+      constructType(parameterType),
       property,
-      JavaTypeUtil.constructType(javaType),
+      constructType(javaType),
       jdbcType,
       resultMap,
       parameterMode,
@@ -167,9 +166,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
   }
 
   public ParameterMapping buildParameterMapping(
-    JavaType parameterType,
+    ResolvedType parameterType,
     String property,
-    JavaType javaType,
+    ResolvedType resolvedType,
     JdbcType jdbcType,
     String resultMap,
     ParameterMode parameterMode,
@@ -178,10 +177,10 @@ public class MapperBuilderAssistant extends BaseBuilder {
     resultMap = applyCurrentNamespace(resultMap, true);
 
     // Class parameterType = parameterMapBuilder.type();
-    JavaType javaTypeClass = resolveParameterJavaType(parameterType, property, javaType, jdbcType);
-    TypeHandler<?> typeHandlerInstance = resolveTypeHandler(javaTypeClass, typeHandler);
+    ResolvedType resolvedTypeClass = resolveParameterJavaType(parameterType, property, resolvedType, jdbcType);
+    TypeHandler<?> typeHandlerInstance = resolveTypeHandler(resolvedTypeClass, typeHandler);
 
-    return new ParameterMapping.Builder(configuration, property, javaTypeClass)
+    return new ParameterMapping.Builder(configuration, property, resolvedTypeClass)
       .jdbcType(jdbcType)
       .resultMapId(resultMap)
       .mode(parameterMode)
@@ -198,7 +197,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
     List<ResultMapping> resultMappings,
     Boolean autoMapping) {
     return addResultMap(id,
-      JavaTypeUtil.constructType(type),
+      constructType(type),
       extend,
       discriminator,
       resultMappings,
@@ -208,7 +207,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
 
   public ResultMap addResultMap(
     String id,
-    JavaType type,
+    ResolvedType type,
     String extend,
     Discriminator discriminator,
     List<ResultMapping> resultMappings,
@@ -251,9 +250,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
     Class<? extends TypeHandler<?>> typeHandler,
     Map<String, String> discriminatorMap) {
     return buildDiscriminator(
-      JavaTypeUtil.constructType(resultType),
+      constructType(resultType),
       column,
-      JavaTypeUtil.constructType(javaType),
+      constructType(javaType),
       jdbcType,
       typeHandler,
       discriminatorMap
@@ -261,9 +260,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
   }
 
   public Discriminator buildDiscriminator(
-    JavaType resultType,
+    ResolvedType resultType,
     String column,
-    JavaType javaType,
+    ResolvedType resolvedType,
     JdbcType jdbcType,
     Class<? extends TypeHandler<?>> typeHandler,
     Map<String, String> discriminatorMap) {
@@ -271,7 +270,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       resultType,
       null,
       column,
-      javaType,
+      resolvedType,
       jdbcType,
       null,
       null,
@@ -320,9 +319,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
       fetchSize,
       timeout,
       parameterMap,
-      JavaTypeUtil.constructType(parameterType),
+      constructType(parameterType),
       resultMap,
-      JavaTypeUtil.constructType(resultType),
+      constructType(resultType),
       resultSetType,
       flushCache,
       useCache,
@@ -344,9 +343,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
     Integer fetchSize,
     Integer timeout,
     String parameterMap,
-    JavaType parameterType,
+    ResolvedType parameterType,
     String resultMap,
-    JavaType resultType,
+    ResolvedType resultType,
     ResultSetType resultSetType,
     boolean flushCache,
     boolean useCache,
@@ -435,7 +434,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
 
   private ParameterMap getStatementParameterMap(
     String parameterMapName,
-    JavaType parameterTypeClass,
+    ResolvedType parameterTypeClass,
     String statementId) {
     parameterMapName = applyCurrentNamespace(parameterMapName, true);
     ParameterMap parameterMap = null;
@@ -458,7 +457,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
 
   private List<ResultMap> getStatementResultMaps(
     String resultMap,
-    JavaType resultType,
+    ResolvedType resultType,
     String statementId) {
     resultMap = applyCurrentNamespace(resultMap, true);
 
@@ -500,10 +499,10 @@ public class MapperBuilderAssistant extends BaseBuilder {
     String foreignColumn,
     boolean lazy) {
     return buildResultMapping(
-      JavaTypeUtil.constructType(resultType),
+      constructType(resultType),
       property,
       column,
-      JavaTypeUtil.constructType(javaType),
+      constructType(javaType),
       jdbcType,
       nestedSelect,
       nestedResultMap,
@@ -518,10 +517,10 @@ public class MapperBuilderAssistant extends BaseBuilder {
   }
 
   public ResultMapping buildResultMapping(
-    JavaType resultType,
+    ResolvedType resultType,
     String property,
     String column,
-    JavaType javaType,
+    ResolvedType resolvedType,
     JdbcType jdbcType,
     String nestedSelect,
     String nestedResultMap,
@@ -532,7 +531,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
     String resultSet,
     String foreignColumn,
     boolean lazy) {
-    JavaType javaResolvedType = resolveResultResolvedType(resultType, property, javaType);
+    ResolvedType javaResolvedType = resolveResultResolvedType(resultType, property, resolvedType);
     TypeHandler<?> typeHandlerInstance = resolveTypeHandler(javaResolvedType, typeHandler);
     List<ResultMapping> composites;
     if ((nestedSelect == null || nestedSelect.isEmpty()) && (foreignColumn == null || foreignColumn.isEmpty())) {
@@ -622,36 +621,36 @@ public class MapperBuilderAssistant extends BaseBuilder {
     return composites;
   }
 
-  protected JavaType resolveResultResolvedType(JavaType resultType, String property, JavaType javaType) {
-    if (javaType == null && property != null) {
+  protected ResolvedType resolveResultResolvedType(ResolvedType resultType, String property, ResolvedType resolvedType) {
+    if (resolvedType == null && property != null) {
       try {
         MetaClass metaResultType = MetaClass.forClass(resultType, configuration.getReflectorFactory());
-        javaType = metaResultType.getSetterResolvedType(property);
+        resolvedType = metaResultType.getSetterResolvedType(property);
       } catch (Exception e) {
         // ignore, following null check statement will deal with the situation
       }
     }
-    if (javaType == null) {
-      javaType = JavaTypeUtil.constructType(Object.class);
+    if (resolvedType == null) {
+      resolvedType = constructType(Object.class);
     }
-    return javaType;
+    return resolvedType;
   }
 
-  private JavaType resolveParameterJavaType(JavaType resultType, String property, JavaType javaType, JdbcType jdbcType) {
-    if (javaType == null) {
+  private ResolvedType resolveParameterJavaType(ResolvedType resultType, String property, ResolvedType resolvedType, JdbcType jdbcType) {
+    if (resolvedType == null) {
       if (JdbcType.CURSOR.equals(jdbcType)) {
-        javaType = JavaTypeUtil.constructType(java.sql.ResultSet.class);
+        resolvedType = constructType(java.sql.ResultSet.class);
       } else if (Map.class.isAssignableFrom(resultType.getRawClass())) {
-        javaType = JavaTypeUtil.CORE_TYPE_OBJECT;
+        resolvedType = resolvedTypeFactory.getObjectType();
       } else {
         MetaClass metaResultType = MetaClass.forClass(resultType, configuration.getReflectorFactory());
-        javaType = metaResultType.getGetterResolvedType(property);
+        resolvedType = metaResultType.getGetterResolvedType(property);
       }
     }
-    if (javaType == null) {
-      javaType = JavaTypeUtil.CORE_TYPE_OBJECT;
+    if (resolvedType == null) {
+      resolvedType = resolvedTypeFactory.getObjectType();
     }
-    return javaType;
+    return resolvedType;
   }
 
 }

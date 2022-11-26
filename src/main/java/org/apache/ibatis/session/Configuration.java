@@ -15,6 +15,7 @@
  */
 package org.apache.ibatis.session;
 
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,6 +28,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.BiFunction;
 
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.apache.ibatis.binding.MapperRegistry;
 import org.apache.ibatis.builder.CacheRefResolver;
 import org.apache.ibatis.builder.IncompleteElementException;
@@ -94,6 +96,10 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
+import org.apache.ibatis.type.resolved.JacksonResolvedTypeFactory;
+import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
+import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
 
 /**
  * @author Clinton Begin
@@ -132,7 +138,8 @@ public class Configuration {
   protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
 
   protected Properties variables = new Properties();
-  protected ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
+  protected final ResolvedTypeFactory resolvedTypeFactory = createResolvedTypeFactory();
+  protected ReflectorFactory reflectorFactory = new DefaultReflectorFactory(resolvedTypeFactory);
   protected ObjectFactory objectFactory = new DefaultObjectFactory();
   protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
 
@@ -565,6 +572,14 @@ public class Configuration {
 
   public TypeHandlerRegistry getTypeHandlerRegistry() {
     return typeHandlerRegistry;
+  }
+
+  public ResolvedTypeFactory getResolvedTypeFactory() {
+    return resolvedTypeFactory;
+  }
+
+  public ResolvedType constructType(Class<?> clazz) {
+    return resolvedTypeFactory.constructType(clazz);
   }
 
   /**
@@ -1086,4 +1101,7 @@ public class Configuration {
     }
   }
 
+  protected ResolvedTypeFactory createResolvedTypeFactory() {
+    return ResolvedTypeUtil.getResolvedTypeFactory();
+  }
 }

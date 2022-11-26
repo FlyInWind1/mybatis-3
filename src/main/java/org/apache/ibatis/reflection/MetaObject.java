@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.apache.ibatis.reflection.wrapper.*;
@@ -94,7 +94,7 @@ public class MetaObject {
     return objectWrapper.getSetterType(name);
   }
 
-  public JavaType getSetterResolvedType(String name) {
+  public ResolvedType getSetterResolvedType(String name) {
     return objectWrapper.getSetterResolvedType(name);
   }
 
@@ -102,7 +102,7 @@ public class MetaObject {
     return objectWrapper.getGetterType(name);
   }
 
-  public JavaType getGetterResolvedType(String name) {
+  public ResolvedType getGetterResolvedType(String name) {
     return objectWrapper.getGetterResolvedType(name);
   }
 

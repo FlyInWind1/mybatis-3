@@ -17,7 +17,7 @@ package org.apache.ibatis.scripting.defaults;
 
 import java.util.HashMap;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.builder.SqlSourceBuilder;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.SqlSource;
@@ -25,7 +25,6 @@ import org.apache.ibatis.scripting.xmltags.DynamicContext;
 import org.apache.ibatis.scripting.xmltags.DynamicSqlSource;
 import org.apache.ibatis.scripting.xmltags.SqlNode;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.util.JavaTypeUtil;
 
 /**
  * Static SqlSource. It is faster than {@link DynamicSqlSource} because mappings are
@@ -39,10 +38,10 @@ public class RawSqlSource implements SqlSource {
   private final SqlSource sqlSource;
 
   public RawSqlSource(Configuration configuration, SqlNode rootSqlNode, Class<?> parameterType) {
-    this(configuration, rootSqlNode, JavaTypeUtil.constructType(parameterType));
+    this(configuration, rootSqlNode, configuration.constructType(parameterType));
   }
 
-  public RawSqlSource(Configuration configuration, SqlNode rootSqlNode, JavaType parameterType) {
+  public RawSqlSource(Configuration configuration, SqlNode rootSqlNode, ResolvedType parameterType) {
     this(configuration, getSql(configuration, rootSqlNode), parameterType);
   }
 
@@ -52,9 +51,9 @@ public class RawSqlSource implements SqlSource {
     sqlSource = sqlSourceParser.parse(sql, clazz, new HashMap<>());
   }
 
-  public RawSqlSource(Configuration configuration, String sql, JavaType parameterType) {
+  public RawSqlSource(Configuration configuration, String sql, ResolvedType parameterType) {
     SqlSourceBuilder sqlSourceParser = new SqlSourceBuilder(configuration);
-    JavaType clazz = parameterType == null ? JavaTypeUtil.CORE_TYPE_OBJECT : parameterType;
+    ResolvedType clazz = parameterType == null ? configuration.getResolvedTypeFactory().getObjectType() : parameterType;
     sqlSource = sqlSourceParser.parse(sql, clazz, new HashMap<>());
   }
 

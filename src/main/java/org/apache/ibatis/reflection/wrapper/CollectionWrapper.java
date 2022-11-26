@@ -18,7 +18,7 @@ package org.apache.ibatis.reflection.wrapper;
 import java.util.Collection;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
@@ -60,7 +60,7 @@ public class CollectionWrapper implements ObjectWrapper {
   }
 
   @Override
-  public JavaType getSetterResolvedType(String name) {
+  public ResolvedType getSetterResolvedType(String name) {
     throw new UnsupportedOperationException();
   }
 
@@ -75,7 +75,7 @@ public class CollectionWrapper implements ObjectWrapper {
   }
 
   @Override
-  public JavaType getGetterResolvedType(String name) {
+  public ResolvedType getGetterResolvedType(String name) {
     throw new UnsupportedOperationException();
   }
 

@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.mapping.ParameterMode;
 import org.apache.ibatis.mapping.ResultSetType;
 import org.apache.ibatis.session.Configuration;
@@ -28,7 +28,7 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
-import org.apache.ibatis.util.JavaTypeUtil;
+import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
 
 /**
  * @author Clinton Begin
@@ -37,11 +37,13 @@ public abstract class BaseBuilder {
   protected final Configuration configuration;
   protected final TypeAliasRegistry typeAliasRegistry;
   protected final TypeHandlerRegistry typeHandlerRegistry;
+  protected final ResolvedTypeFactory resolvedTypeFactory;
 
   public BaseBuilder(Configuration configuration) {
     this.configuration = configuration;
     this.typeAliasRegistry = this.configuration.getTypeAliasRegistry();
     this.typeHandlerRegistry = this.configuration.getTypeHandlerRegistry();
+    this.resolvedTypeFactory = this.configuration.getResolvedTypeFactory();
   }
 
   public Configuration getConfiguration() {
@@ -110,10 +112,10 @@ public abstract class BaseBuilder {
     }
   }
 
-  protected JavaType resolveResolvedType(String alias) {
+  protected ResolvedType resolveResolvedType(String alias) {
     // TODO: 11/21/22
     Class<?> clazz = resolveClass(alias);
-    return JavaTypeUtil.constructType(clazz);
+    return resolvedTypeFactory.constructType(clazz);
   }
 
   protected <T> Class<? extends T> resolveClass(String alias) {
@@ -128,10 +130,10 @@ public abstract class BaseBuilder {
   }
 
   protected TypeHandler<?> resolveTypeHandler(Class<?> javaType, String typeHandlerAlias) {
-    return resolveTypeHandler(JavaTypeUtil.constructType(javaType), typeHandlerAlias);
+    return resolveTypeHandler(resolvedTypeFactory.constructType(javaType), typeHandlerAlias);
   }
 
-  protected TypeHandler<?> resolveTypeHandler(JavaType javaType, String typeHandlerAlias) {
+  protected TypeHandler<?> resolveTypeHandler(ResolvedType resolvedType, String typeHandlerAlias) {
     if (typeHandlerAlias == null) {
       return null;
     }
@@ -141,7 +143,7 @@ public abstract class BaseBuilder {
     }
     @SuppressWarnings("unchecked") // already verified it is a TypeHandler
     Class<? extends TypeHandler<?>> typeHandlerType = (Class<? extends TypeHandler<?>>) type;
-    return resolveTypeHandler(javaType, typeHandlerType);
+    return resolveTypeHandler(resolvedType, typeHandlerType);
   }
 
   protected TypeHandler<?> resolveTypeHandler(Class<?> javaType, Class<? extends TypeHandler<?>> typeHandlerType) {
@@ -157,7 +159,7 @@ public abstract class BaseBuilder {
     return handler;
   }
 
-  protected TypeHandler<?> resolveTypeHandler(JavaType resolvedType, Class<? extends TypeHandler<?>> typeHandlerType) {
+  protected TypeHandler<?> resolveTypeHandler(ResolvedType resolvedType, Class<? extends TypeHandler<?>> typeHandlerType) {
     if (typeHandlerType == null) {
       return null;
     }
@@ -172,5 +174,9 @@ public abstract class BaseBuilder {
 
   protected <T> Class<? extends T> resolveAlias(String alias) {
     return typeAliasRegistry.resolveAlias(alias);
+  }
+
+  protected ResolvedType constructType(Class<?> clazz) {
+    return resolvedTypeFactory.constructType(clazz);
   }
 }

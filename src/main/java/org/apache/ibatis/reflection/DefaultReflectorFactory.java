@@ -15,16 +15,25 @@
  */
 package org.apache.ibatis.reflection;
 
+import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
+import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
+import org.apache.ibatis.util.MapUtil;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.ibatis.util.MapUtil;
-
 public class DefaultReflectorFactory implements ReflectorFactory {
   private boolean classCacheEnabled = true;
-  private final ConcurrentMap<Class<?>, Reflector> reflectorMap = new ConcurrentHashMap<>();
+  private final ConcurrentMap<ResolvedType, Reflector> reflectorMap = new ConcurrentHashMap<>();
+  private final ResolvedTypeFactory resolvedTypeFactory;
 
   public DefaultReflectorFactory() {
+    this(ResolvedTypeUtil.getResolvedTypeFactory());
+  }
+
+  public DefaultReflectorFactory(ResolvedTypeFactory resolvedTypeFactory) {
+    this.resolvedTypeFactory = resolvedTypeFactory;
   }
 
   @Override
@@ -38,7 +47,17 @@ public class DefaultReflectorFactory implements ReflectorFactory {
   }
 
   @Override
+  public ResolvedTypeFactory getResolvedTypeFactory() {
+    return resolvedTypeFactory;
+  }
+
+  @Override
   public Reflector findForClass(Class<?> type) {
+    return findForType(resolvedTypeFactory.constructType(type));
+  }
+
+  @Override
+  public Reflector findForType(ResolvedType type) {
     if (classCacheEnabled) {
       // synchronized (type) removed see issue #461
       return MapUtil.computeIfAbsent(reflectorMap, type, Reflector::new);
@@ -46,5 +65,4 @@ public class DefaultReflectorFactory implements ReflectorFactory {
       return new Reflector(type);
     }
   }
-
 }

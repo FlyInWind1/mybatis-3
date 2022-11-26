@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.mapping;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.apache.ibatis.session.Configuration;
@@ -39,7 +39,7 @@ public class BoundSql {
   private final String sql;
   private final List<ParameterMapping> parameterMappings;
   private final Object parameterObject;
-  private final JavaType parameterObjectType;
+  private final ResolvedType parameterObjectType;
   private final Map<String, Object> additionalParameters;
   private final MetaObject metaParameters;
 
@@ -52,7 +52,7 @@ public class BoundSql {
     this.parameterObjectType = null;
   }
 
-  public BoundSql(Configuration configuration, String sql, List<ParameterMapping> parameterMappings, Object parameterObject, JavaType parameterObjectType) {
+  public BoundSql(Configuration configuration, String sql, List<ParameterMapping> parameterMappings, Object parameterObject, ResolvedType parameterObjectType) {
     this.sql = sql;
     this.parameterMappings = parameterMappings;
     this.parameterObject = parameterObject;
@@ -69,7 +69,7 @@ public class BoundSql {
     return parameterMappings;
   }
 
-  public JavaType getParameterObjectType() {
+  public ResolvedType getParameterObjectType() {
     return parameterObjectType;
   }
 

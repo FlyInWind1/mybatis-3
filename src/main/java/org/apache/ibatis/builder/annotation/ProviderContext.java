@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.builder.annotation;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 
 import java.lang.reflect.Method;
 
@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
  */
 public final class ProviderContext {
 
-  private final JavaType mapperType;
+  private final ResolvedType mapperType;
   private final Method mapperMethod;
   private final String databaseId;
 
@@ -41,7 +41,7 @@ public final class ProviderContext {
    * @param databaseId
    *          A database id
    */
-  ProviderContext(JavaType mapperType, Method mapperMethod, String databaseId) {
+  ProviderContext(ResolvedType mapperType, Method mapperMethod, String databaseId) {
     this.mapperType = mapperType;
     this.mapperMethod = mapperMethod;
     this.databaseId = databaseId;

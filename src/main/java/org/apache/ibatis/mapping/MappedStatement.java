@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
@@ -71,7 +71,7 @@ public final class MappedStatement {
       mappedStatement.sqlSource = sqlSource;
       mappedStatement.statementType = StatementType.PREPARED;
       mappedStatement.resultSetType = ResultSetType.DEFAULT;
-      mappedStatement.parameterMap = new ParameterMap.Builder(configuration, "defaultParameterMap", (JavaType) null, new ArrayList<>()).build();
+      mappedStatement.parameterMap = new ParameterMap.Builder(configuration, "defaultParameterMap", (ResolvedType) null, new ArrayList<>()).build();
       mappedStatement.resultMaps = new ArrayList<>();
       mappedStatement.sqlCommandType = sqlCommandType;
       mappedStatement.keyGenerator = configuration.isUseGeneratedKeys() && SqlCommandType.INSERT.equals(sqlCommandType) ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;

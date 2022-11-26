@@ -37,14 +37,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.fasterxml.jackson.databind.JavaType;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.reflection.invoker.AmbiguousMethodInvoker;
 import org.apache.ibatis.reflection.invoker.GetFieldInvoker;
 import org.apache.ibatis.reflection.invoker.Invoker;
 import org.apache.ibatis.reflection.invoker.MethodInvoker;
 import org.apache.ibatis.reflection.invoker.SetFieldInvoker;
 import org.apache.ibatis.reflection.property.PropertyNamer;
-import org.apache.ibatis.util.JavaTypeUtil;
+import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
+import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
 import org.apache.ibatis.util.MapUtil;
 
 /**
@@ -56,27 +57,35 @@ import org.apache.ibatis.util.MapUtil;
 public class Reflector {
 
   private static final MethodHandle isRecordMethodHandle = getIsRecordMethodHandle();
+  private final ResolvedType resolvedType;
   private final Class<?> type;
+  private final ResolvedTypeFactory resolvedTypeFactory;
   private final String[] readablePropertyNames;
   private final String[] writablePropertyNames;
   private final Map<String, Invoker> setMethods = new HashMap<>();
   private final Map<String, Invoker> getMethods = new HashMap<>();
-  private final Map<String, JavaType> setTypes = new HashMap<>();
-  private final Map<String, JavaType> getTypes = new HashMap<>();
+  private final Map<String, ResolvedType> setTypes = new HashMap<>();
+  private final Map<String, ResolvedType> getTypes = new HashMap<>();
   private Constructor<?> defaultConstructor;
 
   private Map<String, String> caseInsensitivePropertyMap = new HashMap<>();
 
-  public Reflector(Class<?> clazz) {
-    type = clazz;
-    addDefaultConstructor(clazz);
-    Method[] classMethods = getClassMethods(clazz);
-    if (isRecord(type)) {
+  public Reflector(Class<?> clazz, ResolvedTypeFactory resolvedTypeFactory) {
+    this(resolvedTypeFactory.constructType(clazz));
+  }
+
+  public Reflector(ResolvedType resolvedType) {
+    this.resolvedType = resolvedType;
+    resolvedTypeFactory = resolvedType.getResolvedTypeFactory();
+    type = resolvedType.getRawClass();
+    addDefaultConstructor(type);
+    Method[] classMethods = getClassMethods(type);
+    if (resolvedType.isRecordType()) {
       addRecordGetMethods(classMethods);
     } else {
       addGetMethods(classMethods);
       addSetMethods(classMethods);
-      addFields(clazz);
+      addFields(type);
     }
     readablePropertyNames = getMethods.keySet().toArray(new String[0]);
     writablePropertyNames = setMethods.keySet().toArray(new String[0]);
@@ -146,7 +155,7 @@ public class Reflector {
         : new MethodInvoker(method);
     getMethods.put(name, invoker);
     Type returnType = TypeParameterResolver.resolveReturnType(method, type);
-    getTypes.put(name, typeToResolvedType(returnType));
+    getTypes.put(name, toResolvedType(returnType));
   }
 
   private void addSetMethods(Method[] methods) {
@@ -167,12 +176,13 @@ public class Reflector {
     for (Entry<String, List<Method>> entry : conflictingSetters.entrySet()) {
       String propName = entry.getKey();
       List<Method> setters = entry.getValue();
-      JavaType getterType = getTypes.get(propName);
+      ResolvedType getterType = getTypes.get(propName);
+      Class<?> getterClass = ResolvedTypeUtil.getRawClass(getterType);
       boolean isGetterAmbiguous = getMethods.get(propName) instanceof AmbiguousMethodInvoker;
       boolean isSetterAmbiguous = false;
       Method match = null;
       for (Method setter : setters) {
-        if (!isGetterAmbiguous && JavaTypeUtil.constructType(setter.getParameterTypes()[0]).equals(getterType)) {
+        if (!isGetterAmbiguous && setter.getParameterTypes()[0].equals(getterClass)) {
           // should be the best match
           match = setter;
           break;
@@ -205,7 +215,7 @@ public class Reflector {
             property, setter2.getDeclaringClass().getName(), paramType1.getName(), paramType2.getName()));
     setMethods.put(property, invoker);
     Type[] paramTypes = TypeParameterResolver.resolveParamTypes(setter1, type);
-    setTypes.put(property, typeToResolvedType(paramTypes[0]));
+    setTypes.put(property, toResolvedType(paramTypes[0]));
     return null;
   }
 
@@ -213,11 +223,11 @@ public class Reflector {
     MethodInvoker invoker = new MethodInvoker(method);
     setMethods.put(name, invoker);
     Type[] paramTypes = TypeParameterResolver.resolveParamTypes(method, type);
-    setTypes.put(name, typeToResolvedType(paramTypes[0]));
+    setTypes.put(name, toResolvedType(paramTypes[0]));
   }
 
-  private JavaType typeToResolvedType(Type src) {
-    return JavaTypeUtil.constructType(src);
+  private ResolvedType toResolvedType(Type src) {
+    return resolvedTypeFactory.constructType(src);
   }
 
   private Class<?> typeToClass(Type src) {
@@ -266,7 +276,7 @@ public class Reflector {
     if (isValidPropertyName(field.getName())) {
       setMethods.put(field.getName(), new SetFieldInvoker(field));
       Type fieldType = TypeParameterResolver.resolveFieldType(field, type);
-      setTypes.put(field.getName(), typeToResolvedType(fieldType));
+      setTypes.put(field.getName(), toResolvedType(fieldType));
     }
   }
 
@@ -274,7 +284,7 @@ public class Reflector {
     if (isValidPropertyName(field.getName())) {
       getMethods.put(field.getName(), new GetFieldInvoker(field));
       Type fieldType = TypeParameterResolver.resolveFieldType(field, type);
-      getTypes.put(field.getName(), typeToResolvedType(fieldType));
+      getTypes.put(field.getName(), toResolvedType(fieldType));
     }
   }
 
@@ -402,11 +412,7 @@ public class Reflector {
    * @return The Class of the property setter
    */
   public Class<?> getSetterType(String propertyName) {
-    JavaType clazz = setTypes.get(propertyName);
-    if (clazz == null) {
-      throw new ReflectionException("There is no setter for property named '" + propertyName + "' in '" + type + "'");
-    }
-    return clazz.getRawClass();
+    return ResolvedTypeUtil.getRawClass(getSetterResolvedType(propertyName));
   }
 
   /**
@@ -415,12 +421,12 @@ public class Reflector {
    * @param propertyName - the name of the property
    * @return The Class of the property setter
    */
-  public JavaType getSetterResolvedType(String propertyName) {
-    JavaType resolvedType = setTypes.get(propertyName);
-    if (resolvedType == null) {
+  public ResolvedType getSetterResolvedType(String propertyName) {
+    ResolvedType setterType = setTypes.get(propertyName);
+    if (setterType == null) {
       throw new ReflectionException("There is no setter for property named '" + propertyName + "' in '" + this.type + "'");
     }
-    return resolvedType;
+    return setterType;
   }
 
   /**
@@ -430,7 +436,7 @@ public class Reflector {
    * @return The Class of the property getter
    */
   public Class<?> getGetterType(String propertyName) {
-    JavaType clazz = getTypes.get(propertyName);
+    ResolvedType clazz = getTypes.get(propertyName);
     if (clazz == null) {
       throw new ReflectionException("There is no getter for property named '" + propertyName + "' in '" + type + "'");
     }
@@ -477,17 +483,6 @@ public class Reflector {
 
   public String findPropertyName(String name) {
     return caseInsensitivePropertyMap.get(name.toUpperCase(Locale.ENGLISH));
-  }
-
-  /**
-   * Class.isRecord() alternative for Java 15 and older.
-   */
-  private static boolean isRecord(Class<?> clazz) {
-    try {
-      return isRecordMethodHandle != null && (boolean)isRecordMethodHandle.invokeExact(clazz);
-    } catch (Throwable e) {
-      throw new ReflectionException("Failed to invoke 'Class.isRecord()'.", e);
-    }
   }
 
   private static MethodHandle getIsRecordMethodHandle() {

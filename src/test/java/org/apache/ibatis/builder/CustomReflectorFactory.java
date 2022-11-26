@@ -16,7 +16,15 @@
 package org.apache.ibatis.builder;
 
 import org.apache.ibatis.reflection.DefaultReflectorFactory;
+import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
+import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
 
 public class CustomReflectorFactory extends DefaultReflectorFactory {
+  public CustomReflectorFactory() {
+    this(ResolvedTypeUtil.getResolvedTypeFactory());
+  }
 
+  public CustomReflectorFactory(ResolvedTypeFactory resolvedTypeFactory) {
+    super(resolvedTypeFactory);
+  }
 }
