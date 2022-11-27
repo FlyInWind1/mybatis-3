@@ -3,6 +3,7 @@ package org.apache.ibatis.type.resolved;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.apache.ibatis.binding.MapperMethod.ParamMap;
+import org.apache.ibatis.type.TypeReference;
 
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
@@ -42,6 +43,11 @@ public class JacksonResolvedTypeFactory implements ResolvedTypeFactory {
       return null;
     }
     return toResolvedType(typeFactory.constructType(clazz));
+  }
+
+  @Override
+  public <T> ResolvedType constructType(TypeReference<T> typeReference) {
+    return constructType(typeReference.getClass()).findTypeParameters(TypeReference.class)[0];
   }
 
   @Override

@@ -124,8 +124,7 @@ public class MetaClass {
   }
 
   private ResolvedType getGetterResolvedType(PropertyTokenizer prop) {
-    // TODO: 11/21/22
-    return reflectorFactory.getResolvedTypeFactory().constructType(getGetterType(prop));
+    return reflector.getGetterResolvedType(prop.getName());
   }
 
   private Class<?> getGetterType(PropertyTokenizer prop) {

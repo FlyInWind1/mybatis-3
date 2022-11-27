@@ -1,5 +1,6 @@
 package org.apache.ibatis.type.resolved;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Objects;
@@ -22,16 +23,11 @@ public abstract class BaseResolvedType<T extends Type, F extends ResolvedTypeFac
   }
 
   @Override
-  public ResolvedMethod resolveMethod(Method method) {
-    return new DefaultResolvedMethod(this, method);
-  }
-
-  @Override
-  public ResolvedMethod resolveMethod(String methodName) {
+  public ResolvedMethod findMethod(String name) {
     Method[] methods = getRawClass().getMethods();
     Method foundMethod = null;
     for (Method method : methods) {
-      if (method.getName().equals(methodName) && !method.isDefault() && !method.isBridge()) {
+      if (method.getName().equals(name) && !method.isDefault() && !method.isBridge()) {
         foundMethod = method;
         break;
       }
@@ -43,8 +39,33 @@ public abstract class BaseResolvedType<T extends Type, F extends ResolvedTypeFac
   }
 
   @Override
+  public ResolvedMethod resolveMethod(String name, Class<?>... parameterTypes) {
+    try {
+      Method method = getRawClass().getMethod(name, parameterTypes);
+      return resolveMethod(method);
+    } catch (NoSuchMethodException e) {
+      return null;
+    }
+  }
+
+  @Override
+  public ResolvedMethod resolveMethod(Method method) {
+    return new DefaultResolvedMethod(this, method);
+  }
+
+  @Override
   public ResolvedTypeFactory getResolvedTypeFactory() {
     return resolvedTypeFactory;
+  }
+
+  @Override
+  public ResolvedType[] getTypeParameters() {
+    return findTypeParameters(getRawClass());
+  }
+
+  @Override
+  public ResolvedType resolveFieldType(Field field) {
+    return findSuperType(field.getDeclaringClass()).resolveMemberType(field.getGenericType());
   }
 
   @Override

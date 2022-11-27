@@ -436,11 +436,21 @@ public class Reflector {
    * @return The Class of the property getter
    */
   public Class<?> getGetterType(String propertyName) {
-    ResolvedType clazz = getTypes.get(propertyName);
-    if (clazz == null) {
-      throw new ReflectionException("There is no getter for property named '" + propertyName + "' in '" + type + "'");
+    return getGetterResolvedType(propertyName).getRawClass();
+  }
+
+  /**
+   * Gets the type for a property getter.
+   *
+   * @param propertyName - the name of the property
+   * @return The Class of the property getter
+   */
+  public ResolvedType getGetterResolvedType(String propertyName) {
+    ResolvedType getterType = getTypes.get(propertyName);
+    if (getterType == null) {
+      throw new ReflectionException("There is no getter for property named '" + propertyName + "' in '" + this.type + "'");
     }
-    return clazz.getRawClass();
+    return getterType;
   }
 
   /**

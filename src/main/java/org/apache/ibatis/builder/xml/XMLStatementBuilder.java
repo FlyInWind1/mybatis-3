@@ -75,7 +75,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     XMLIncludeTransformer includeParser = new XMLIncludeTransformer(configuration, builderAssistant);
     includeParser.applyIncludes(context.getNode());
 
-    ResolvedMethod resolveMethod = resolvedMethod(id);
+    ResolvedMethod resolveMethod = findMethod(id);
 
     String parameterType = context.getStringAttribute("parameterType");
     ResolvedType parameterTypeClass = resolveParameterType(parameterType, resolveMethod);
@@ -203,9 +203,9 @@ public class XMLStatementBuilder extends BaseBuilder {
     return configuration.getLanguageDriver(langClass);
   }
 
-  protected ResolvedMethod resolvedMethod(String id) {
+  protected ResolvedMethod findMethod(String id) {
     ResolvedType mapperType = builderAssistant.getMapperType();
-    return ResolvedTypeUtil.resolvedMethod(mapperType, id);
+    return ResolvedTypeUtil.findMethod(mapperType, id);
   }
 
   protected ResolvedType resolveParameterType(String alias, ResolvedMethod method) {

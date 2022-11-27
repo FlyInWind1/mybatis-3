@@ -1,5 +1,6 @@
 package org.apache.ibatis.type.resolved;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -59,11 +60,17 @@ public interface ResolvedType extends Type {
 
   ResolvedType[] findTypeParameters(Class<?> rawClass);
 
+  ResolvedType[] getTypeParameters();
+
+  ResolvedMethod findMethod(String name);
+
+  ResolvedMethod resolveMethod(String name, Class<?>... parameterTypes);
+
   ResolvedMethod resolveMethod(Method method);
 
-  ResolvedMethod resolveMethod(String methodName);
-
   ResolvedType resolveMemberType(Type type);
+
+  ResolvedType resolveFieldType(Field field);
 
   ResolvedTypeFactory getResolvedTypeFactory();
 

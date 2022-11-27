@@ -24,11 +24,11 @@ public class ResolvedTypeUtil {
   }
 
 
-  public static ResolvedMethod resolvedMethod(ResolvedType type, String methodName) {
+  public static ResolvedMethod findMethod(ResolvedType type, String methodName) {
     if (type == null || methodName == null) {
       return null;
     }
-    return type.resolveMethod(methodName);
+    return type.findMethod(methodName);
   }
 
   protected static final JacksonResolvedTypeFactory JACKSON_RESOLVED_TYPE_FACTORY = new JacksonResolvedTypeFactory(TypeFactory.defaultInstance());
