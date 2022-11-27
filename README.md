@@ -30,7 +30,7 @@ A wrap class bound Class and its TypeParameters, to resolve generic method param
 
 - [x] Use jackson JavaType instead of Class to parse GenericType
 - [x] Create an interface ResolvedType to hide JavaType
-- [ ] Impl ListTypeHandler SetTypeHandler
+- [x] Impl ListTypeHandler SetTypeHandler
 - [ ] Compatible with spring-mybatis, mybatis-plus
 - [ ] Make xml resultType and resultMap not required
 - [ ] Register all handleable type of ArrayTypeHandler to TypeHandlerRegister

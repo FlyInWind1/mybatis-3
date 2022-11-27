@@ -13,16 +13,19 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.apache.ibatis.submitted.array_result_type;
+package org.apache.ibatis.submitted.collections_type_handler;
 
 import java.util.List;
+import java.util.Set;
 
 public class User {
 
   private Integer id;
   private String name;
-
+  private String[] nicknames;
   private List<String> nicknameList;
+
+  private Set<String> nicknameSet;
 
   public Integer getId() {
     return id;
@@ -40,11 +43,27 @@ public class User {
     this.name = name;
   }
 
+  public String[] getNicknames() {
+    return nicknames;
+  }
+
+  public void setNicknames(String[] nicknames) {
+    this.nicknames = nicknames;
+  }
+
   public List<String> getNicknameList() {
     return nicknameList;
   }
 
   public void setNicknameList(List<String> nicknameList) {
     this.nicknameList = nicknameList;
+  }
+
+  public Set<String> getNicknameSet() {
+    return nicknameSet;
+  }
+
+  public void setNicknameSet(Set<String> nicknameSet) {
+    this.nicknameSet = nicknameSet;
   }
 }

@@ -13,12 +13,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.apache.ibatis.submitted.array_type_handler;
+package org.apache.ibatis.submitted.collections_type_handler;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.Reader;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.BaseDataTest;
 import org.apache.ibatis.io.Resources;
@@ -28,38 +32,57 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class ArrayTypeHandlerTest {
+class CollectionsTypeHandlerTest {
 
   private SqlSessionFactory sqlSessionFactory;
 
   @BeforeEach
   void setUp() throws Exception {
     try (Reader reader = Resources
-        .getResourceAsReader("org/apache/ibatis/submitted/array_type_handler/mybatis-config.xml")) {
+        .getResourceAsReader("org/apache/ibatis/submitted/collections_type_handler/mybatis-config.xml")) {
       sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
     }
 
     BaseDataTest.runScript(sqlSessionFactory.getConfiguration().getEnvironment().getDataSource(),
-        "org/apache/ibatis/submitted/array_type_handler/CreateDB.sql");
+      "org/apache/ibatis/submitted/collections_type_handler/CreateDB.sql");
   }
 
   @Test
   void shouldInsertArrayValue() throws Exception {
     try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-      User user = new User();
-      user.setId(1);
-      user.setName("User 1");
-      user.setNicknames(new String[] { "User", "one" });
-
       Mapper mapper = sqlSession.getMapper(Mapper.class);
-      mapper.insert(user);
+
+      User user1 = new User();
+      user1.setId(1);
+      user1.setName("User 1");
+      user1.setNicknames(new String[] { "User", "one" });
+      user1.setNicknameList(Arrays.asList(user1.getNicknames()));
+      user1.setNicknameSet(new HashSet<>(Arrays.asList("User", "User")));
+      mapper.insert(user1);
+
+      User user2 = new User();
+      user2.setId(2);
+      user2.setName("User 2");
+      user2.setNicknames(new String[] { "User2", "two" });
+      user2.setNicknameList(Arrays.asList(user2.getNicknames()));
+      user2.setNicknameSet(new HashSet<>(Arrays.asList("User2", "User3")));
+      mapper.insertWithoutAssignTypeHandler(user2);
+
       sqlSession.commit();
 
       int usersInDatabase = mapper.getUserCount();
-      assertEquals(1, usersInDatabase);
+      assertEquals(2, usersInDatabase);
 
-      Integer nicknameCount = mapper.getNicknameCount();
-      assertEquals(2, nicknameCount);
+      Map<String, Long> nicknameCount = mapper.getNicknameCount();
+      assertEquals(4, nicknameCount.get("nicknames_count"));
+      assertEquals(4, nicknameCount.get("nickname_list_count"));
+      assertEquals(3, nicknameCount.get("nickname_set_count"));
+
+      List<User> userList = mapper.selectAll();
+      assertEquals(user1.getNicknameList(), userList.get(0).getNicknameList());
+      assertEquals(user1.getNicknameSet(), userList.get(0).getNicknameSet());
+      assertEquals(user2.getNicknameList(), userList.get(1).getNicknameList());
+      assertEquals(user2.getNicknameSet(), userList.get(1).getNicknameSet());
     }
   }
 
@@ -73,12 +96,14 @@ class ArrayTypeHandlerTest {
 
       Mapper mapper = sqlSession.getMapper(Mapper.class);
       mapper.insert(user);
+      user.setId(2);
+      mapper.insertWithoutAssignTypeHandler(user);
       sqlSession.commit();
 
       int usersInDatabase = mapper.getUserCount();
-      assertEquals(1, usersInDatabase);
+      assertEquals(2, usersInDatabase);
 
-      Integer nicknameCount = mapper.getNicknameCount();
+      Map<String, Long> nicknameCount = mapper.getNicknameCount();
       assertNull(nicknameCount);
     }
   }

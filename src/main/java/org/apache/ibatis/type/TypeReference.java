@@ -15,9 +15,6 @@
  */
 package org.apache.ibatis.type;
 
-import org.apache.ibatis.type.resolved.ResolvedType;
-import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
@@ -29,12 +26,6 @@ import java.lang.reflect.Type;
  * @since 3.1.0
  */
 public abstract class TypeReference<T> {
-
-  private final Type rawType;
-
-  protected TypeReference() {
-    rawType = getSuperclassTypeParameter(getClass());
-  }
 
   Type getSuperclassTypeParameter(Class<?> clazz) {
     Type genericSuperclass = clazz.getGenericSuperclass();
@@ -58,16 +49,12 @@ public abstract class TypeReference<T> {
   }
 
   public final Type getRawType() {
-    return rawType;
-  }
-
-  public final ResolvedType getResolvedType(ResolvedTypeFactory resolvedTypeFactory) {
-    return resolvedTypeFactory.constructType(getClass()).findTypeParameters(TypeReference.class)[0];
+    return getSuperclassTypeParameter(getClass());
   }
 
   @Override
   public String toString() {
-    return rawType.toString();
+    return getRawType().toString();
   }
 
 }

@@ -38,7 +38,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ArrayTypeHandler extends BaseTypeHandler<Object> {
 
-  private static final ConcurrentHashMap<Class<?>, String> STANDARD_MAPPING;
+  protected static final ConcurrentHashMap<Class<?>, String> STANDARD_MAPPING;
+
+  protected static final String DEFAULT_TYPE_NAME = JdbcType.JAVA_OBJECT.name();
 
   static {
     STANDARD_MAPPING = new ConcurrentHashMap<>();
@@ -97,7 +99,7 @@ public class ArrayTypeHandler extends BaseTypeHandler<Object> {
   }
 
   protected String resolveTypeName(Class<?> type) {
-    return STANDARD_MAPPING.getOrDefault(type, JdbcType.JAVA_OBJECT.name());
+    return STANDARD_MAPPING.getOrDefault(type, DEFAULT_TYPE_NAME);
   }
 
   @Override

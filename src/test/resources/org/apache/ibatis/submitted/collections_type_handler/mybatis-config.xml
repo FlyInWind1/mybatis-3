@@ -34,7 +34,7 @@
 	</environments>
 
 	<mappers>
-		<mapper class="org.apache.ibatis.submitted.array_type_handler.Mapper" />
+		<mapper class="org.apache.ibatis.submitted.collections_type_handler.Mapper" />
 	</mappers>
 
 </configuration>

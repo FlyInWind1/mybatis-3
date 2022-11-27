@@ -45,6 +45,11 @@ public final class TypeHandlerRegistry {
   private final ResolvedTypeFactory resolvedTypeFactory;
   private final Map<JdbcType, TypeHandler<?>> jdbcTypeHandlerMap = new EnumMap<>(JdbcType.class);
   private final Map<Class<?>, Map<JdbcType, TypeHandler<?>>> typeHandlerMap = new ConcurrentHashMap<>();
+  /**
+   * key: Class can be handled by TypeHandler
+   * value: Function to create TypeHandler
+   */
+  private final Map<Class<?>, Function<ResolvedType, TypeHandler<?>>> typeHandlerNeedInstanceMap = new ConcurrentHashMap<>();
   private final TypeHandler<Object> unknownTypeHandler;
   private final Map<Class<?>, TypeHandler<?>> allTypeHandlersMap = new HashMap<>();
 
@@ -52,6 +57,10 @@ public final class TypeHandlerRegistry {
 
   private Class<? extends TypeHandler> defaultEnumTypeHandler = EnumTypeHandler.class;
 
+  /**
+   * key: TypeHandler Class
+   * value: Function to create TypeHandler
+   */
   private final Map<Class<?>, Function<ResolvedType, TypeHandler<?>>> typeHandlerCreatorMap = new ConcurrentHashMap<>();
 
   /**
@@ -169,6 +178,10 @@ public final class TypeHandlerRegistry {
     // issue #273
     register(Character.class, new CharacterTypeHandler());
     register(char.class, new CharacterTypeHandler());
+
+    registerNeedInstance(List.class, ListTypeHandler.class);
+    registerNeedInstance(Collection.class, ListTypeHandler.class);
+    registerNeedInstance(Set.class, SetTypeHandler.class);
   }
 
   public ResolvedTypeFactory getResolvedTypeFactory() {
@@ -237,7 +250,7 @@ public final class TypeHandlerRegistry {
   }
 
   public <T> TypeHandler<T> getTypeHandler(TypeReference<T> javaTypeReference, JdbcType jdbcType) {
-    return getTypeHandler(javaTypeReference.getResolvedType(resolvedTypeFactory), jdbcType);
+    return getTypeHandler(resolvedTypeFactory.constructType(javaTypeReference), jdbcType);
   }
 
   @SuppressWarnings("unchecked")
@@ -255,6 +268,12 @@ public final class TypeHandlerRegistry {
       if (handler == null) {
         // #591
         handler = pickSoleHandler(jdbcHandlerMap);
+      }
+    }
+    if (handler == null) {
+      Function<ResolvedType, TypeHandler<?>> creator = typeHandlerNeedInstanceMap.get(type.getRawClass());
+      if (creator != null) {
+        return (TypeHandler<T>) creator.apply(type);
       }
     }
     // type drives generics here
@@ -354,7 +373,7 @@ public final class TypeHandlerRegistry {
     if (!mappedTypeFound && typeHandler instanceof TypeReference) {
       try {
         TypeReference<T> typeReference = (TypeReference<T>) typeHandler;
-        register(typeReference.getResolvedType(resolvedTypeFactory), typeHandler);
+        register(resolvedTypeFactory.constructType(typeReference), typeHandler);
         mappedTypeFound = true;
       } catch (Throwable t) {
         // maybe users define the TypeReference with a different type and are not assignable, so just ignore it
@@ -385,8 +404,8 @@ public final class TypeHandlerRegistry {
     }
   }
 
-  public <T> void register(TypeReference<T> javaTypeReference, TypeHandler<? extends T> handler) {
-    register(javaTypeReference.getResolvedType(resolvedTypeFactory), handler);
+  public <T> void register(TypeReference<T> typeReference, TypeHandler<? extends T> handler) {
+    register(resolvedTypeFactory.constructType(typeReference), handler);
   }
 
   // java type + jdbc type + handler
@@ -437,6 +456,18 @@ public final class TypeHandlerRegistry {
 
   public void register(Class<?> javaTypeClass, Class<?> typeHandlerClass) {
     register(javaTypeClass, getInstance(javaTypeClass, typeHandlerClass));
+  }
+
+  public void registerNeedInstance(Class<?> clazz, Class<?> typeHandlerClass) {
+    registerNeedInstance(resolvedTypeFactory.constructType(clazz), typeHandlerClass);
+  }
+
+  public void registerNeedInstance(ResolvedType resolvedType, Class<?> typeHandlerClass) {
+    TypeHandler<Object> typeHandler = getInstance(resolvedType, typeHandlerClass);
+    if (typeHandler != null && resolvedType != null) {
+      Function<ResolvedType, TypeHandler<?>> creator = typeHandlerCreatorMap.get(typeHandlerClass);
+      typeHandlerNeedInstanceMap.put(resolvedType.getRawClass(), creator);
+    }
   }
 
   // java type + jdbc type + handler type

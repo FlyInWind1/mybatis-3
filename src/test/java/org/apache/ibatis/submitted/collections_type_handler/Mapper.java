@@ -13,35 +13,23 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.apache.ibatis.submitted.array_type_handler;
+package org.apache.ibatis.submitted.collections_type_handler;
 
-public class User {
+import java.util.List;
+import java.util.Map;
 
-  private Integer id;
-  private String name;
-  private String[] nicknames;
+public interface Mapper {
 
-  public Integer getId() {
-    return id;
-  }
+  void insert(User user);
 
-  public void setId(Integer id) {
-    this.id = id;
-  }
+  void insertWithoutAssignTypeHandler(User user);
 
-  public String getName() {
-    return name;
-  }
+  int getUserCount();
 
-  public void setName(String name) {
-    this.name = name;
-  }
+  /**
+   * HSQL returns NULL when asked for the cardinality of an array column with NULL value :-(
+   */
+  Map<String, Long> getNicknameCount();
 
-  public String[] getNicknames() {
-    return nicknames;
-  }
-
-  public void setNicknames(String[] nicknames) {
-    this.nicknames = nicknames;
-  }
+  List<User> selectAll();
 }

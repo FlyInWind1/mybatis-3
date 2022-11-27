@@ -19,5 +19,7 @@ drop table users if exists;
 create table users (
   id int,
   name varchar(20),
-  nicknames varchar(20) array
+  nicknames varchar(20) array,
+  nickname_list varchar(20) array,
+  nickname_set varchar(20) array
 );
