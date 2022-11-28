@@ -21,6 +21,7 @@ import org.apache.ibatis.parsing.GenericTokenParser;
 import org.apache.ibatis.parsing.TokenHandler;
 import org.apache.ibatis.reflection.MetaClass;
 import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.resolved.ResolvedType;
@@ -99,17 +100,15 @@ public class SqlSourceBuilder extends BaseBuilder {
       ResolvedType propertyType;
       if (metaParameters.hasGetter(property)) { // issue #448 get type from additional params
         propertyType = metaParameters.getGetterResolvedType(property);
-      } else if (typeHandlerRegistry.hasTypeHandler(parameterType)) {
+      } else if (parameterTypeToPropertyType(property)) {
         propertyType = parameterType;
       } else if (JdbcType.CURSOR.name().equals(propertiesMap.get("jdbcType"))) {
         propertyType = resolvedTypeFactory.getResultSetType();
       } else if (property == null || parameterType.isTypeOrSubTypeOf(Map.class)) {
         propertyType = resolvedTypeFactory.getObjectType();
       } else {
-        MetaClass metaClass = MetaClass.forClass(parameterType, configuration.getReflectorFactory());
-        if (metaClass.hasGetter(property)) {
-          propertyType = metaClass.getGetterResolvedType(property);
-        } else {
+        propertyType = resolveParamTypeByProperty(parameterType, property);
+        if (propertyType == null) {
           propertyType = resolvedTypeFactory.getObjectType();
         }
       }
@@ -157,6 +156,33 @@ public class SqlSourceBuilder extends BaseBuilder {
         throw new BuilderException("Parsing error was found in mapping #{" + content + "}.  Check syntax #{property|(expression), var1=value1, var2=value2, ...} ", ex);
       }
     }
+
+    protected boolean parameterTypeToPropertyType(String property) {
+      if (parameterType.hasContentType() && PropertyTokenizer.isPropertyAccess(property)) {
+        return false;
+      }
+      return typeHandlerRegistry.hasTypeHandler(parameterType);
+    }
+
+    protected ResolvedType resolveParamTypeByProperty(ResolvedType type, String property) {
+      PropertyTokenizer prop = new PropertyTokenizer(property);
+      if (prop.hasNext()) {
+        ResolvedType subType = resolveParamTypeByProperty(type, prop.getIndexedName());
+        if (subType == null) {
+          return null;
+        }
+        return resolveParamTypeByProperty(subType, prop.getChildren());
+      }
+      if (prop.getIndex() != null) {
+        return type.getContentType();
+      }
+      MetaClass metaClass = MetaClass.forClass(type, configuration.getReflectorFactory());
+      if (metaClass.hasGetter(prop.getName())) {
+        return metaClass.getGetterResolvedType(prop.getName());
+      }
+      return resolvedTypeFactory.getObjectType();
+    }
+
   }
 
 }

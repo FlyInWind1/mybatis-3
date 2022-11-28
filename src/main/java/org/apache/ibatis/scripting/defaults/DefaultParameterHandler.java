@@ -15,7 +15,6 @@
  */
 package org.apache.ibatis.scripting.defaults;
 
-import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
@@ -24,11 +23,13 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.mapping.ParameterMode;
 import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeException;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
 
 import java.sql.PreparedStatement;
@@ -75,7 +76,7 @@ public class DefaultParameterHandler implements ParameterHandler {
             value = boundSql.getAdditionalParameter(propertyName);
           } else if (parameterObject == null) {
             value = null;
-          } else if (parameterObjectIsValue()) {
+          } else if (parameterObjectIsValue(propertyName)) {
             value = parameterObject;
           } else {
             MetaObject metaObject = configuration.newMetaObject(parameterObject);
@@ -96,7 +97,7 @@ public class DefaultParameterHandler implements ParameterHandler {
     }
   }
 
-  private boolean parameterObjectIsValue() {
+  private boolean parameterObjectIsValue(String propertyName) {
     Class<?> clazz = parameterObject.getClass();
     if (clazz == MapperMethod.ParamMap.class) {
       // BaseExecutorTest HashMapTypeHandlerTest
@@ -105,6 +106,9 @@ public class DefaultParameterHandler implements ParameterHandler {
     ResolvedType type = mappedStatement.getParameterMap().getResolvedType();
     if (ResolvedTypeUtil.isNotInstance(type, parameterObject)) {
       type = configuration.constructType(clazz);
+    }
+    if (type.getContentType() != null && PropertyTokenizer.isPropertyAccess(propertyName)) {
+      return false;
     }
     return typeHandlerRegistry.hasTypeHandler(type);
   }

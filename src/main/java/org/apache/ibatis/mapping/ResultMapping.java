@@ -181,7 +181,7 @@ public class ResultMapping {
       if (resultMapping.typeHandler == null && resultMapping.resolvedType != null) {
         Configuration configuration = resultMapping.configuration;
         TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
-        resultMapping.typeHandler = typeHandlerRegistry.getTypeHandler(resultMapping.resolvedType.getRawClass(), resultMapping.jdbcType);
+        resultMapping.typeHandler = typeHandlerRegistry.getTypeHandler(resultMapping.resolvedType, resultMapping.jdbcType);
       }
     }
 

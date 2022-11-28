@@ -16,6 +16,7 @@
 package org.apache.ibatis.type;
 
 import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -24,14 +25,31 @@ import java.util.Set;
 /**
  * @author FlyInWind
  */
+@MappedJdbcTypes(value = JdbcType.ARRAY, includeNullJdbcType = true)
 public class SetTypeHandler extends CollectionTypeHandler<Set<Object>> {
 
-  public SetTypeHandler(ResolvedType type) {
-    super(type);
+  public SetTypeHandler(String arrayTypeName) {
+    super(arrayTypeName);
+  }
+
+  public SetTypeHandler(ResolvedType resolvedType) {
+    super(resolvedType);
   }
 
   @Override
   protected Set<Object> toCollection(Object[] array) {
     return new LinkedHashSet<>(Arrays.asList(array));
+  }
+
+  protected static void resigter(TypeHandlerRegistry registry) {
+    ResolvedTypeFactory resolvedTypeFactory = registry.getResolvedTypeFactory();
+    ArrayTypeHandler.STANDARD_MAPPING.forEach((componentType, arrayTypeName) -> {
+      if (componentType.isPrimitive()) {
+        return;
+      }
+      TypeHandler<?> typeHandler = new SetTypeHandler(arrayTypeName);
+      registry.register(resolvedTypeFactory.constructParametricType(Set.class, componentType), typeHandler);
+    });
+    registry.putCreatorCache(SetTypeHandler.class, ListTypeHandler::new);
   }
 }

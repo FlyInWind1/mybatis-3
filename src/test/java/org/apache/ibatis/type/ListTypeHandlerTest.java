@@ -38,7 +38,7 @@ class ListTypeHandlerTest extends BaseTypeHandlerTest {
 
   static final ResolvedType STRING_LIST_TYPE = ResolvedTypeUtil.getResolvedTypeFactory().constructType(new TypeReference<List<String>>() {
   });
-  static final ListTypeHandler TYPE_HANDLER = new ListTypeHandler(STRING_LIST_TYPE);
+  static final ListTypeHandler TYPE_HANDLER = new ListTypeHandler(JdbcType.VARCHAR.name());
 
   @Mock
   Array mockArray;

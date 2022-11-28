@@ -44,12 +44,11 @@ public final class TypeHandlerRegistry {
 
   private final ResolvedTypeFactory resolvedTypeFactory;
   private final Map<JdbcType, TypeHandler<?>> jdbcTypeHandlerMap = new EnumMap<>(JdbcType.class);
-  private final Map<Class<?>, Map<JdbcType, TypeHandler<?>>> typeHandlerMap = new ConcurrentHashMap<>();
+  private final Map<ResolvedType, Map<JdbcType, TypeHandler<?>>> typeHandlerMap = new ConcurrentHashMap<>();
   /**
    * key: Class can be handled by TypeHandler
    * value: Function to create TypeHandler
    */
-  private final Map<Class<?>, Function<ResolvedType, TypeHandler<?>>> typeHandlerNeedInstanceMap = new ConcurrentHashMap<>();
   private final TypeHandler<Object> unknownTypeHandler;
   private final Map<Class<?>, TypeHandler<?>> allTypeHandlersMap = new HashMap<>();
 
@@ -61,7 +60,7 @@ public final class TypeHandlerRegistry {
    * key: TypeHandler Class
    * value: Function to create TypeHandler
    */
-  private final Map<Class<?>, Function<ResolvedType, TypeHandler<?>>> typeHandlerCreatorMap = new ConcurrentHashMap<>();
+  private final Map<Class<?>, Function<ResolvedType, ? extends TypeHandler<?>>> typeHandlerCreatorMap = new ConcurrentHashMap<>();
 
   /**
    * The default constructor.
@@ -179,9 +178,8 @@ public final class TypeHandlerRegistry {
     register(Character.class, new CharacterTypeHandler());
     register(char.class, new CharacterTypeHandler());
 
-    registerNeedInstance(List.class, ListTypeHandler.class);
-    registerNeedInstance(Collection.class, ListTypeHandler.class);
-    registerNeedInstance(Set.class, SetTypeHandler.class);
+    ListTypeHandler.resigter(this);
+    SetTypeHandler.resigter(this);
   }
 
   public ResolvedTypeFactory getResolvedTypeFactory() {
@@ -226,6 +224,9 @@ public final class TypeHandlerRegistry {
   }
 
   public TypeHandler<?> getMappingTypeHandler(Class<? extends TypeHandler<?>> handlerType) {
+    if (typeHandlerCreatorMap.containsKey(handlerType)) {
+      return null;
+    }
     return allTypeHandlersMap.get(handlerType);
   }
 
@@ -270,38 +271,32 @@ public final class TypeHandlerRegistry {
         handler = pickSoleHandler(jdbcHandlerMap);
       }
     }
-    if (handler == null) {
-      Function<ResolvedType, TypeHandler<?>> creator = typeHandlerNeedInstanceMap.get(type.getRawClass());
-      if (creator != null) {
-        return (TypeHandler<T>) creator.apply(type);
-      }
-    }
     // type drives generics here
     return (TypeHandler<T>) handler;
   }
 
   private Map<JdbcType, TypeHandler<?>> getJdbcHandlerMap(ResolvedType type) {
-    Class<?> clazz = type.getRawClass();
-    Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = typeHandlerMap.get(clazz);
+    Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = typeHandlerMap.get(type);
     if (jdbcHandlerMap != null) {
       return NULL_TYPE_HANDLER_MAP.equals(jdbcHandlerMap) ? null : jdbcHandlerMap;
     }
     if (type.isEnumType()) {
+      Class<?> clazz = type.getRawClass();
       Class<?> enumClass = clazz.isAnonymousClass() ? clazz.getSuperclass() : clazz;
-      jdbcHandlerMap = getJdbcHandlerMapForEnumInterfaces(enumClass, enumClass);
+      jdbcHandlerMap = getJdbcHandlerMapForEnumInterfaces(type, enumClass);
       if (jdbcHandlerMap == null) {
-        register(enumClass, getInstance(enumClass, defaultEnumTypeHandler));
-        return typeHandlerMap.get(enumClass);
+        register(type, getInstance(type, defaultEnumTypeHandler));
+        return typeHandlerMap.get(type);
       }
     } else {
-      jdbcHandlerMap = getJdbcHandlerMapForSuperclass(clazz);
+      jdbcHandlerMap = getJdbcHandlerMapForSuperclass(type);
     }
-    typeHandlerMap.put(clazz, jdbcHandlerMap == null ? NULL_TYPE_HANDLER_MAP : jdbcHandlerMap);
+    typeHandlerMap.put(type, jdbcHandlerMap == null ? NULL_TYPE_HANDLER_MAP : jdbcHandlerMap);
     return jdbcHandlerMap;
   }
 
-  private Map<JdbcType, TypeHandler<?>> getJdbcHandlerMapForEnumInterfaces(Class<?> clazz, Class<?> enumClazz) {
-    for (Class<?> iface : clazz.getInterfaces()) {
+  private Map<JdbcType, TypeHandler<?>> getJdbcHandlerMapForEnumInterfaces(ResolvedType clazz, Class<?> enumClazz) {
+    for (ResolvedType iface : clazz.getInterfaces()) {
       Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = typeHandlerMap.get(iface);
       if (jdbcHandlerMap == null) {
         jdbcHandlerMap = getJdbcHandlerMapForEnumInterfaces(iface, enumClazz);
@@ -319,9 +314,9 @@ public final class TypeHandlerRegistry {
     return null;
   }
 
-  private Map<JdbcType, TypeHandler<?>> getJdbcHandlerMapForSuperclass(Class<?> clazz) {
-    Class<?> superclass = clazz.getSuperclass();
-    if (superclass == null || Object.class.equals(superclass)) {
+  private Map<JdbcType, TypeHandler<?>> getJdbcHandlerMapForSuperclass(ResolvedType clazz) {
+    ResolvedType superclass = clazz.getSuperclass();
+    if (superclass == null || superclass.isJavaLangObject()) {
       return null;
     }
     Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = typeHandlerMap.get(superclass);
@@ -390,7 +385,7 @@ public final class TypeHandlerRegistry {
     register(resolvedTypeFactory.constructType(javaType), typeHandler);
   }
 
-  private <T> void register(ResolvedType resolvedType, TypeHandler<? extends T> typeHandler) {
+  public <T> void register(ResolvedType resolvedType, TypeHandler<? extends T> typeHandler) {
     MappedJdbcTypes mappedJdbcTypes = typeHandler.getClass().getAnnotation(MappedJdbcTypes.class);
     if (mappedJdbcTypes != null) {
       for (JdbcType handledJdbcType : mappedJdbcTypes.value()) {
@@ -418,12 +413,12 @@ public final class TypeHandlerRegistry {
 
   private void register(ResolvedType resolvedType, JdbcType jdbcType, TypeHandler<?> handler) {
     if (resolvedType != null) {
-      Map<JdbcType, TypeHandler<?>> map = typeHandlerMap.get(resolvedType.getRawClass());
+      Map<JdbcType, TypeHandler<?>> map = typeHandlerMap.get(resolvedType);
       if (map == null || map == NULL_TYPE_HANDLER_MAP) {
         map = new HashMap<>();
       }
       map.put(jdbcType, handler);
-      typeHandlerMap.put(resolvedType.getRawClass(), map);
+      typeHandlerMap.put(resolvedType, map);
     }
     allTypeHandlersMap.put(handler.getClass(), handler);
   }
@@ -458,18 +453,6 @@ public final class TypeHandlerRegistry {
     register(javaTypeClass, getInstance(javaTypeClass, typeHandlerClass));
   }
 
-  public void registerNeedInstance(Class<?> clazz, Class<?> typeHandlerClass) {
-    registerNeedInstance(resolvedTypeFactory.constructType(clazz), typeHandlerClass);
-  }
-
-  public void registerNeedInstance(ResolvedType resolvedType, Class<?> typeHandlerClass) {
-    TypeHandler<Object> typeHandler = getInstance(resolvedType, typeHandlerClass);
-    if (typeHandler != null && resolvedType != null) {
-      Function<ResolvedType, TypeHandler<?>> creator = typeHandlerCreatorMap.get(typeHandlerClass);
-      typeHandlerNeedInstanceMap.put(resolvedType.getRawClass(), creator);
-    }
-  }
-
   // java type + jdbc type + handler type
 
   public void register(Class<?> javaTypeClass, JdbcType jdbcType, Class<?> typeHandlerClass) {
@@ -485,7 +468,7 @@ public final class TypeHandlerRegistry {
   @SuppressWarnings("unchecked")
   public <T> TypeHandler<T> getInstance(ResolvedType resolvedType, Class<?> typeHandlerClass) {
     if (resolvedType != null) {
-      Function<ResolvedType, TypeHandler<?>> creator = typeHandlerCreatorMap.get(typeHandlerClass);
+      Function<ResolvedType, ? extends TypeHandler<?>> creator = typeHandlerCreatorMap.get(typeHandlerClass);
       if (creator != null) {
         return (TypeHandler<T>) creator.apply(resolvedType);
       }
@@ -536,6 +519,10 @@ public final class TypeHandlerRegistry {
     } catch (Exception e) {
       throw new TypeException("Failed invoking constructor for handler " + constructor.getDeclaringClass(), e);
     }
+  }
+
+  public void putCreatorCache(Class<?> typeHandlerClazz, Function<ResolvedType, ? extends TypeHandler<?>> creator) {
+    typeHandlerCreatorMap.put(typeHandlerClazz, creator);
   }
 
   // scan

@@ -28,35 +28,27 @@ import static org.apache.ibatis.type.ArrayTypeHandler.STANDARD_MAPPING;
  */
 public abstract class CollectionTypeHandler<T extends Collection<Object>> extends BaseTypeHandler<T> {
 
-  protected final ResolvedType type;
-  protected String arrayTypeName;
+  protected final String arrayTypeName;
 
-  protected CollectionTypeHandler(ResolvedType type) {
-    this.type = type;
+  protected CollectionTypeHandler(String arrayTypeName) {
+    this.arrayTypeName = arrayTypeName;
+  }
+
+  protected CollectionTypeHandler(ResolvedType resolvedType) {
+    this(getArrayTypeName(resolvedType));
   }
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException {
     Object[] javaArray = parameter.toArray();
-    Array array = ps.getConnection().createArrayOf(getArrayTypeName(), javaArray);
+    Array array = ps.getConnection().createArrayOf(arrayTypeName, javaArray);
     ps.setArray(i, array);
     array.free();
   }
 
-  protected Class<?> getComponentType() {
-    ResolvedType compType = type.findTypeParameters(Collection.class)[0];
-    return compType.getRawClass();
-  }
-
-  protected String getArrayTypeName() {
-    if (this.arrayTypeName == null) {
-      this.arrayTypeName = resolveTypeName(getComponentType());
-    }
-    return this.arrayTypeName;
-  }
-
-  protected String resolveTypeName(Class<?> type) {
-    return STANDARD_MAPPING.getOrDefault(type, DEFAULT_TYPE_NAME);
+  protected static String getArrayTypeName(ResolvedType type) {
+    Class<?> compType = type.findTypeParameters(Collection.class)[0].getRawClass();
+    return STANDARD_MAPPING.getOrDefault(compType, DEFAULT_TYPE_NAME);
   }
 
   @Override

@@ -18,6 +18,7 @@ package org.apache.ibatis.type.resolved;
 import com.fasterxml.jackson.databind.JavaType;
 
 import java.lang.reflect.Type;
+import java.util.List;
 
 import static org.apache.ibatis.type.resolved.ResolvedTypeUtil.EMPTY_TYPE_ARRAY;
 
@@ -71,13 +72,43 @@ public class JacksonResolvedType extends BaseResolvedType<JavaType, JacksonResol
   }
 
   @Override
+  public boolean isJavaLangObject() {
+    return type.isJavaLangObject();
+  }
+
+  @Override
   public boolean hasRawClass(Class<?> clazz) {
     return type.hasRawClass(clazz);
   }
 
   @Override
+  public boolean hasContentType() {
+    return type.hasContentType();
+  }
+
+  @Override
   public ResolvedType findSuperType(Class<?> clazz) {
     return toResolvedType(type.findSuperType(clazz));
+  }
+
+  @Override
+  public ResolvedType[] getInterfaces() {
+    List<JavaType> interfaces = type.getInterfaces();
+    ResolvedType[] result = new ResolvedType[interfaces.size()];
+    for (int i = 0; i < interfaces.size(); i++) {
+      JavaType inf = interfaces.get(i);
+      result[i] = toResolvedType(inf);
+    }
+    return result;
+  }
+
+  @Override
+  public ResolvedType getSuperclass() {
+    JavaType superClass = type.getSuperClass();
+    if (superClass == null) {
+      return null;
+    }
+    return toResolvedType(superClass);
   }
 
   @Override

@@ -59,12 +59,20 @@ public interface ResolvedType extends Type {
 
   boolean isTypeOrSuperTypeOf(Class<?> clazz);
 
+  boolean isJavaLangObject();
+
   /**
    * clazz == {@link #getRawClass()
    */
   boolean hasRawClass(Class<?> clazz);
 
+  boolean hasContentType();
+
   ResolvedType findSuperType(Class<?> clazz);
+
+  ResolvedType[] getInterfaces();
+
+  ResolvedType getSuperclass();
 
   /**
    * for {@link Collection}{@code <T>} , {@code T[]} , {@link Map}{@code <K,T>} return T

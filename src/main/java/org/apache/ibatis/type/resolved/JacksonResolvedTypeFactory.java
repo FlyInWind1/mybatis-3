@@ -48,6 +48,8 @@ public class JacksonResolvedTypeFactory implements ResolvedTypeFactory {
   public ResolvedType constructType(Type type) {
     if (type == null) {
       return null;
+    } else if (type instanceof ResolvedType) {
+      return (ResolvedType) type;
     }
     return toResolvedType(typeFactory.constructType(type));
   }
@@ -63,6 +65,11 @@ public class JacksonResolvedTypeFactory implements ResolvedTypeFactory {
   @Override
   public <T> ResolvedType constructType(TypeReference<T> typeReference) {
     return constructType(typeReference.getClass()).findTypeParameters(TypeReference.class)[0];
+  }
+
+  @Override
+  public ResolvedType constructParametricType(Class<?> rawClass, Class<?> typeParameters) {
+    return toResolvedType(typeFactory.constructParametricType(rawClass, typeParameters));
   }
 
   @Override

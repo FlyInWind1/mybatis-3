@@ -16,22 +16,42 @@
 package org.apache.ibatis.type;
 
 import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
  * @author FlyInWind
  */
+@MappedJdbcTypes(value = JdbcType.ARRAY, includeNullJdbcType = true)
 public class ListTypeHandler extends CollectionTypeHandler<List<Object>> {
 
-  public ListTypeHandler(ResolvedType type) {
-    super(type);
+  public ListTypeHandler(ResolvedType resolvedType) {
+    super(resolvedType);
+  }
+
+  public ListTypeHandler(String arrayTypeName) {
+    super(arrayTypeName);
   }
 
   @Override
   protected List<Object> toCollection(Object[] array) {
     return new ArrayList<>(Arrays.asList(array));
+  }
+
+  protected static void resigter(TypeHandlerRegistry registry) {
+    ResolvedTypeFactory resolvedTypeFactory = registry.getResolvedTypeFactory();
+    ArrayTypeHandler.STANDARD_MAPPING.forEach((componentType, arrayTypeName) -> {
+      if (componentType.isPrimitive()) {
+        return;
+      }
+      TypeHandler<?> typeHandler = new ListTypeHandler(arrayTypeName);
+      registry.register(resolvedTypeFactory.constructParametricType(Collection.class, componentType), typeHandler);
+      registry.register(resolvedTypeFactory.constructParametricType(List.class, componentType), typeHandler);
+    });
+    registry.putCreatorCache(ListTypeHandler.class, ListTypeHandler::new);
   }
 }

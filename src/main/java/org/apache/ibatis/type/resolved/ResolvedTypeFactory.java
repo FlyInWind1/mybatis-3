@@ -30,6 +30,8 @@ public interface ResolvedTypeFactory {
 
   <T> ResolvedType constructType(TypeReference<T> typeReference);
 
+  ResolvedType constructParametricType(Class<?> rawClass, Class<?> typeParameters);
+
   ResolvedType constructFromCanonical(String canonical);
 
   ResolvedType getObjectType();

@@ -90,7 +90,9 @@ public abstract class BaseResolvedType<T extends Type, F extends ResolvedTypeFac
 
   @Override
   public boolean equals(Object o) {
-    return type.equals(o);
+    if (this == o) return true;
+    if (!(getClass().isInstance(o))) return false;
+    return type.equals(((BaseResolvedType<?, ?>) o).type);
   }
 
   @Override

@@ -26,6 +26,7 @@
     <relativePath />
   </parent>
 
+  <groupId>com.github.flyinwind</groupId>
   <artifactId>mybatis</artifactId>
   <version>3.5.11</version>
   <packaging>jar</packaging>
