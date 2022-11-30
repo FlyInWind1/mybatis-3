@@ -15,7 +15,6 @@
  */
 package org.apache.ibatis.executor;
 
-import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cache.impl.PerpetualCache;
@@ -32,6 +31,8 @@ import org.apache.ibatis.session.LocalCacheScope;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
+import org.apache.ibatis.type.TypeHandlerRegistry;
+import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
 
 import java.sql.Connection;
@@ -348,10 +349,11 @@ public abstract class BaseExecutor implements Executor {
     if (clazz == MapperMethod.ParamMap.class) {
       return false;
     }
+    TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
     if (ResolvedTypeUtil.isNotInstance(type, parameterObject)) {
-      type = configuration.getResolvedTypeFactory().constructType(clazz);
+      return typeHandlerRegistry.hasTypeHandler(clazz);
     }
-    return configuration.getTypeHandlerRegistry().hasTypeHandler(type);
+    return typeHandlerRegistry.hasTypeHandler(type) || typeHandlerRegistry.hasTypeHandler(clazz);
   }
 
   private static class DeferredLoad {
