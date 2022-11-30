@@ -26,9 +26,9 @@
     <relativePath />
   </parent>
 
-  <groupId>com.github.flyinwind</groupId>
+  <groupId>io.github.flyinwind</groupId>
   <artifactId>mybatis</artifactId>
-  <version>3.5.11</version>
+  <version>3.5.11.1</version>
   <packaging>jar</packaging>
 
   <name>mybatis</name>
@@ -107,10 +107,14 @@
       <name>Tomáš Neuberg</name>
       <email>neuberg@m-atelier.cz</email>
     </contributor>
+    <contributor>
+      <name>FlyInWind</name>
+      <email>2518509078@qq.com</email>
+    </contributor>
   </contributors>
 
   <scm>
-    <url>https://github.com/mybatis/mybatis-3</url>
+    <url>https://github.com/FlyInWind1/mybatis-3</url>
     <connection>scm:git:ssh://github.com/mybatis/mybatis-3.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/mybatis/mybatis-3.git</developerConnection>
     <tag>mybatis-3.5.11</tag>
