@@ -36,7 +36,13 @@ public interface ResolvedTypeFactory {
 
   ResolvedType getObjectType();
 
+  ResolvedType getIntegerType();
+
+  ResolvedType getLongType();
+
   ResolvedType getResultSetType();
+
+  ResolvedType getMapType();
 
   ResolvedType getParamMapType();
 

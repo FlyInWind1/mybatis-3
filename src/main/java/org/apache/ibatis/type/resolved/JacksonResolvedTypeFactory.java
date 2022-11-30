@@ -22,6 +22,7 @@ import org.apache.ibatis.type.TypeReference;
 
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
+import java.util.Map;
 
 /**
  * @author FlyInWind
@@ -30,13 +31,19 @@ public class JacksonResolvedTypeFactory implements ResolvedTypeFactory {
   protected final TypeFactory typeFactory;
 
   protected final ResolvedType objectType;
+  protected final ResolvedType integerType;
+  protected final ResolvedType longType;
   protected final ResolvedType resultSetType;
+  protected final ResolvedType mapType;
   protected final ResolvedType paramMapType;
 
   public JacksonResolvedTypeFactory(TypeFactory typeFactory) {
     this.typeFactory = typeFactory;
     this.objectType = constructType(Object.class);
+    this.integerType = constructType(Integer.class);
+    this.longType = constructType(Long.class);
     this.resultSetType = constructType(ResultSet.class);
+    this.mapType = constructType(Map.class);
     this.paramMapType = constructType(ParamMap.class);
   }
 
@@ -85,7 +92,22 @@ public class JacksonResolvedTypeFactory implements ResolvedTypeFactory {
     return objectType;
   }
 
+    @Override
+    public ResolvedType getIntegerType() {
+        return integerType;
+    }
+
+    @Override
+    public ResolvedType getLongType() {
+        return longType;
+    }
+
   @Override
+  public ResolvedType getMapType() {
+    return mapType;
+  }
+
+    @Override
   public ResolvedType getResultSetType() {
     return resultSetType;
   }
