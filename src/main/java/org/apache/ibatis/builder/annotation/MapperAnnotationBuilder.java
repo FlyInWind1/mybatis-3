@@ -53,16 +53,16 @@ import java.util.stream.Stream;
  */
 public class MapperAnnotationBuilder {
 
-  private static final Set<Class<? extends Annotation>> statementAnnotationTypes = Stream
+  protected static final Set<Class<? extends Annotation>> statementAnnotationTypes = Stream
     .of(Select.class, Update.class, Insert.class, Delete.class, SelectProvider.class, UpdateProvider.class,
       InsertProvider.class, DeleteProvider.class)
     .collect(Collectors.toSet());
 
-  private final Configuration configuration;
-  private final MapperBuilderAssistant assistant;
-  private final ResolvedTypeFactory resolvedTypeFactory;
-  private final Class<?> type;
-  private final ResolvedType resolvedType;
+  protected final Configuration configuration;
+  protected final MapperBuilderAssistant assistant;
+  protected final ResolvedTypeFactory resolvedTypeFactory;
+  protected final Class<?> type;
+  protected final ResolvedType resolvedType;
 
   public MapperAnnotationBuilder(Configuration configuration, Class<?> type) {
     String resource = type.getName().replace('.', '/') + ".java (best guess)";
@@ -100,12 +100,12 @@ public class MapperAnnotationBuilder {
     parsePendingMethods();
   }
 
-  private boolean canHaveStatement(Method method) {
+  protected boolean canHaveStatement(Method method) {
     // issue #237
     return !method.isBridge() && !method.isDefault();
   }
 
-  private void parsePendingMethods() {
+  protected void parsePendingMethods() {
     Collection<MethodResolver> incompleteMethods = configuration.getIncompleteMethods();
     synchronized (incompleteMethods) {
       Iterator<MethodResolver> iter = incompleteMethods.iterator();
@@ -120,7 +120,7 @@ public class MapperAnnotationBuilder {
     }
   }
 
-  private void loadXmlResource() {
+  protected void loadXmlResource() {
     // Spring may not know the real resource name so we check a flag
     // to prevent loading again a resource twice
     // this flag is set at XMLMapperBuilder#bindMapperForNamespace
@@ -143,7 +143,7 @@ public class MapperAnnotationBuilder {
     }
   }
 
-  private void parseCache() {
+  protected void parseCache() {
     CacheNamespace cacheDomain = type.getAnnotation(CacheNamespace.class);
     if (cacheDomain != null) {
       Integer size = cacheDomain.size() == 0 ? null : cacheDomain.size();
@@ -165,7 +165,7 @@ public class MapperAnnotationBuilder {
     return props;
   }
 
-  private void parseCacheRef() {
+  protected void parseCacheRef() {
     CacheNamespaceRef cacheDomainRef = type.getAnnotation(CacheNamespaceRef.class);
     if (cacheDomainRef != null) {
       Class<?> refType = cacheDomainRef.value();
@@ -185,7 +185,7 @@ public class MapperAnnotationBuilder {
     }
   }
 
-  private String parseResultMap(ResolvedMethod resolvedMethod) {
+  protected String parseResultMap(ResolvedMethod resolvedMethod) {
     Method method = resolvedMethod.getMethod();
     ResolvedType returnType = getReturnType(resolvedMethod);
     Arg[] args = method.getAnnotationsByType(Arg.class);
@@ -256,7 +256,7 @@ public class MapperAnnotationBuilder {
     return null;
   }
 
-  void parseStatement(ResolvedMethod resolvedMethod) {
+  protected void parseStatement(ResolvedMethod resolvedMethod) {
     Method method = resolvedMethod.getMethod();
     final ResolvedType parameterTypeClass = resolvedMethod.namedParamsType();
     final LanguageDriver languageDriver = getLanguageDriver(method);
@@ -355,7 +355,7 @@ public class MapperAnnotationBuilder {
     return configuration.getLanguageDriver(langClass);
   }
 
-  private ResolvedType getReturnType(ResolvedMethod resolvedMethod) {
+  protected ResolvedType getReturnType(ResolvedMethod resolvedMethod) {
     ResolvedType returnType = resolvedMethod.getReturnType();
     Method method = resolvedMethod.getMethod();
     if (returnType.isArrayType()) {
@@ -557,7 +557,7 @@ public class MapperAnnotationBuilder {
   }
 
   @SafeVarargs
-  private final Optional<AnnotationWrapper> getAnnotationWrapper(Method method, boolean errorIfNoMatch,
+  protected final Optional<AnnotationWrapper> getAnnotationWrapper(Method method, boolean errorIfNoMatch,
                                                                  Class<? extends Annotation>... targetTypes) {
     return getAnnotationWrapper(method, errorIfNoMatch, Arrays.asList(targetTypes));
   }

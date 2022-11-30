@@ -63,6 +63,10 @@ public class ResultMap {
       this(configuration, id, type, resultMappings, null);
     }
 
+    public Builder(Configuration configuration, String id, ResolvedType type, List<ResultMapping> resultMappings) {
+      this(configuration, id, type, resultMappings, null);
+    }
+
     public Builder(Configuration configuration, String id, Class<?> type, List<ResultMapping> resultMappings, Boolean autoMapping) {
       resultMap.configuration = configuration;
       resultMap.id = id;
