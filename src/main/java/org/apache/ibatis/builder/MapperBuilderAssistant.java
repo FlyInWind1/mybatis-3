@@ -15,6 +15,9 @@
  */
 package org.apache.ibatis.builder;
 
+import org.apache.ibatis.annotations.MapKey;
+import org.apache.ibatis.annotations.ResultType;
+import org.apache.ibatis.type.resolved.ResolvedMethod;
 import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.cache.decorators.LruCache;
@@ -28,6 +31,7 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -631,7 +635,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       }
     }
     if (resolvedType == null) {
-      resolvedType = constructType(Object.class);
+      resolvedType = resolvedTypeFactory.getObjectType();
     }
     return resolvedType;
   }
@@ -651,6 +655,36 @@ public class MapperBuilderAssistant extends BaseBuilder {
       resolvedType = resolvedTypeFactory.getObjectType();
     }
     return resolvedType;
+  }
+
+  public ResolvedType getReturnType(ResolvedMethod resolvedMethod) {
+    ResolvedType returnType = resolvedMethod.getReturnType();
+    Method method = resolvedMethod.getMethod();
+    if (returnType.isArrayType()) {
+      returnType = returnType.getContentType();
+    } else if (returnType.hasRawClass(void.class)) {
+      // gcode issue #508
+      ResultType rt = method.getAnnotation(ResultType.class);
+      if (rt != null) {
+        returnType = resolvedTypeFactory.constructType(rt.value());
+      }
+    } else {
+      ResolvedType[] typeParameters = returnType.findTypeParameters(returnType.getRawClass());
+      if (typeParameters.length > 0) {
+        if (returnType.isTypeOrSubTypeOf(Iterable.class)) {
+          returnType = typeParameters[0];
+        } else if (method.isAnnotationPresent(MapKey.class) && returnType.isTypeOrSubTypeOf(Map.class)) {
+          // (gcode issue 504) Do not look into Maps if there is not MapKey annotation
+          if (typeParameters.length == 2) {
+            returnType = typeParameters[1];
+          }
+        } else if (returnType.hasRawClass(Optional.class)) {
+          returnType = typeParameters[0];
+        }
+      }
+    }
+
+    return returnType;
   }
 
 }

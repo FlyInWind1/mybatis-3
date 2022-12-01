@@ -356,33 +356,7 @@ public class MapperAnnotationBuilder {
   }
 
   protected ResolvedType getReturnType(ResolvedMethod resolvedMethod) {
-    ResolvedType returnType = resolvedMethod.getReturnType();
-    Method method = resolvedMethod.getMethod();
-    if (returnType.isArrayType()) {
-      returnType = returnType.getContentType();
-    } else if (returnType.hasRawClass(void.class)) {
-      // gcode issue #508
-      ResultType rt = method.getAnnotation(ResultType.class);
-      if (rt != null) {
-        returnType = resolvedTypeFactory.constructType(rt.value());
-      }
-    } else {
-      ResolvedType[] typeParameters = returnType.findTypeParameters(returnType.getRawClass());
-      if (typeParameters.length > 0) {
-        if (returnType.isTypeOrSubTypeOf(Iterable.class)) {
-          returnType = typeParameters[0];
-        } else if (method.isAnnotationPresent(MapKey.class) && returnType.isTypeOrSubTypeOf(Map.class)) {
-          // (gcode issue 504) Do not look into Maps if there is not MapKey annotation
-          if (typeParameters.length == 2) {
-            returnType = typeParameters[1];
-          }
-        } else if (returnType.hasRawClass(Optional.class)) {
-          returnType = typeParameters[0];
-        }
-      }
-    }
-
-    return returnType;
+    return assistant.getReturnType(resolvedMethod);
   }
 
   private void applyResults(Result[] results, ResolvedType resultType, List<ResultMapping> resultMappings) {

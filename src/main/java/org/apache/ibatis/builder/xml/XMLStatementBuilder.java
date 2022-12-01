@@ -104,7 +104,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     Integer timeout = context.getIntAttribute("timeout");
     String parameterMap = context.getStringAttribute("parameterMap");
     String resultType = context.getStringAttribute("resultType");
-    ResolvedType resultResolvedType = resolveResolvedType(resultType);
+    ResolvedType resultResolvedType = resolveResultType(resultType, resolveMethod);
     String resultMap = context.getStringAttribute("resultMap");
     String resultSetType = context.getStringAttribute("resultSetType");
     ResultSetType resultSetTypeEnum = resolveResultSetType(resultSetType);
@@ -212,6 +212,14 @@ public class XMLStatementBuilder extends BaseBuilder {
     ResolvedType type = resolveResolvedType(alias);
     if (type == null && method != null) {
       type = method.namedParamsType();
+    }
+    return type;
+  }
+
+  protected ResolvedType resolveResultType(String alias, ResolvedMethod method) {
+    ResolvedType type = resolveResolvedType(alias);
+    if (type == null && method != null) {
+      type = builderAssistant.getReturnType(method);
     }
     return type;
   }
