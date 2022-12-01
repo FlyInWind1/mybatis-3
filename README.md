@@ -22,9 +22,6 @@ Essentials
 * [Download Latest](https://github.com/mybatis/mybatis-3/releases)
 * [Download Snapshot](https://oss.sonatype.org/content/repositories/snapshots/org/mybatis/mybatis/)
 
-### ResolvedType
-
-A wrap class bound Class and its TypeParameters, to resolve generic method parameter type or return type
 
 ### Todo
 
