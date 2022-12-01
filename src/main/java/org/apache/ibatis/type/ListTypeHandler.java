@@ -42,7 +42,7 @@ public class ListTypeHandler extends CollectionTypeHandler<List<Object>> {
     return new ArrayList<>(Arrays.asList(array));
   }
 
-  protected static void resigter(TypeHandlerRegistry registry) {
+  protected static void register(TypeHandlerRegistry registry) {
     ResolvedTypeFactory resolvedTypeFactory = registry.getResolvedTypeFactory();
     ArrayTypeHandler.STANDARD_MAPPING.forEach((componentType, arrayTypeName) -> {
       if (componentType.isPrimitive()) {

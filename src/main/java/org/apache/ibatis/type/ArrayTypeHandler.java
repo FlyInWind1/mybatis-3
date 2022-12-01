@@ -126,4 +126,15 @@ public class ArrayTypeHandler extends BaseTypeHandler<Object> {
     return result;
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  protected static void register(TypeHandlerRegistry registry) {
+    TypeHandler<?> typeHandler = new ArrayTypeHandler();
+    ArrayTypeHandler.STANDARD_MAPPING.forEach((componentType, arrayTypeName) -> {
+      Class arrayClass = java.lang.reflect.Array.newInstance(componentType, 0).getClass();
+      if (!registry.hasTypeHandler(arrayClass)) {
+        // skip byte[] for BlobTypeHandler
+        registry.register(arrayClass, typeHandler);
+      }
+    });
+  }
 }

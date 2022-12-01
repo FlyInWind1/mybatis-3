@@ -36,7 +36,7 @@
     insert into users
     (id, name, nicknames, nickname_list, nickname_set)
     values
-    (#{id}, #{name}, #{nicknames,typeHandler=org.apache.ibatis.type.ArrayTypeHandler},
+    (#{id}, #{name}, #{nicknames},
     #{nicknameList}, #{nicknameSet})
   </insert>
 

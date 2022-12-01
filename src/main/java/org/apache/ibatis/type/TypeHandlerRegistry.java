@@ -178,8 +178,9 @@ public final class TypeHandlerRegistry {
     register(Character.class, new CharacterTypeHandler());
     register(char.class, new CharacterTypeHandler());
 
-    ListTypeHandler.resigter(this);
-    SetTypeHandler.resigter(this);
+    ListTypeHandler.register(this);
+    SetTypeHandler.register(this);
+    ArrayTypeHandler.register(this);
   }
 
   public ResolvedTypeFactory getResolvedTypeFactory() {
