@@ -62,7 +62,7 @@ public interface ResolvedType extends Type {
   boolean isJavaLangObject();
 
   /**
-   * clazz == {@link #getRawClass()
+   * clazz == {@link #getRawClass()}
    */
   boolean hasRawClass(Class<?> clazz);
 
