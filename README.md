@@ -23,6 +23,15 @@ Essentials
 * [Download Snapshot](https://oss.sonatype.org/content/repositories/snapshots/org/mybatis/mybatis/)
 
 
+### Maven
+``` xml
+<dependency>
+    <groupId>io.github.flyinwind1</groupId>
+    <artifactId>mybatis</artifactId>
+    <version>3.5.11.1</version>
+</dependency>
+```
+
 ### Todo
 
 - [x] Use jackson JavaType instead of Class to parse GenericType
