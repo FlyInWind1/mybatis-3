@@ -23,7 +23,6 @@ import org.apache.ibatis.reflection.ReflectionException;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.apache.ibatis.type.resolved.ResolvedType;
 import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
-import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
 
 /**
  * @author Clinton Begin

@@ -139,4 +139,17 @@ public class JacksonResolvedType extends BaseResolvedType<JavaType, JacksonResol
   public String toCanonical() {
     return type.toCanonical();
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof JacksonResolvedType)) return false;
+    return type.equals(((JacksonResolvedType) o).type);
+  }
+
+  @Override
+  public int hashCode() {
+    return type.hashCode();
+  }
+
 }

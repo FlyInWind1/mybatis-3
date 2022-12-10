@@ -15,8 +15,8 @@
  */
 package org.apache.ibatis.type.resolved;
 
-import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
+import org.apache.ibatis.reflection.ParamNameResolver;
+import org.apache.ibatis.session.Configuration;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -28,11 +28,17 @@ public class DefaultResolvedMethod implements ResolvedMethod {
   protected final ResolvedTypeFactory resolvedTypeFactory;
   protected final ResolvedType rawClass;
   protected final Method method;
+  protected ResolvedType[] parameterTypes;
 
   protected DefaultResolvedMethod(ResolvedType rawClass, Method method) {
     this.resolvedTypeFactory = rawClass.getResolvedTypeFactory();
     this.rawClass = rawClass;
     this.method = method;
+  }
+
+  @Override
+  public ResolvedTypeFactory getResolvedTypeFactory() {
+    return resolvedTypeFactory;
   }
 
   @Override
@@ -56,17 +62,26 @@ public class DefaultResolvedMethod implements ResolvedMethod {
 
   @Override
   public ResolvedType[] getParameterTypes() {
+    if (parameterTypes != null) {
+      return parameterTypes;
+    }
     int count = method.getParameterTypes().length;
     if (count == 0) {
-      return ResolvedTypeUtil.EMPTY_TYPE_ARRAY;
+      parameterTypes = ResolvedTypeUtil.EMPTY_TYPE_ARRAY;
+    } else {
+      ResolvedType[] types = new ResolvedType[count];
+      ResolvedType superType = getMethodDeclaringType();
+      if (superType == null) {
+        // jackson don't support get superType of String
+        superType = rawClass;
+      }
+      Type[] genericParameterTypes = method.getGenericParameterTypes();
+      for (int i = 0; i < count; i++) {
+        types[i] = superType.resolveMemberType(genericParameterTypes[i]);
+      }
+      parameterTypes = types;
     }
-    ResolvedType[] result = new ResolvedType[count];
-    ResolvedType superType = getMethodDeclaringType();
-    Type[] parameterTypes = method.getGenericParameterTypes();
-    for (int i = 0; i < count; i++) {
-      result[i] = superType.resolveMemberType(parameterTypes[i]);
-    }
-    return result;
+    return parameterTypes;
   }
 
   @Override
@@ -77,20 +92,8 @@ public class DefaultResolvedMethod implements ResolvedMethod {
   }
 
   @Override
-  public ResolvedType namedParamsType() {
-    ResolvedType parameterType = null;
-    for (ResolvedType resolvedType : getParameterTypes()) {
-      if (!resolvedType.isTypeOrSubTypeOf(RowBounds.class) && !resolvedType.isTypeOrSubTypeOf(ResultHandler.class)) {
-        if (parameterType == null) {
-          parameterType = resolvedType;
-        } else {
-          // issue #135
-          parameterType = parameterType.getResolvedTypeFactory().getParamMapType();
-          break;
-        }
-      }
-    }
-    return parameterType;
+  public ResolvedType namedParamsType(Configuration configuration) {
+    return ParamNameResolver.namedParamsType(configuration, this);
   }
 
   @Override

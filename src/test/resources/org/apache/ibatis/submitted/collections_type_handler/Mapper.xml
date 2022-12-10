@@ -61,4 +61,19 @@
             nickname_set
     from users order by id
   </select>
+
+  <select id="selectByNicknameList" resultMap="selectAllMap">
+    select * from users where nickname_list = #{nicknameList}
+  </select>
+
+  <select id="selectByNicknameSet" resultMap="selectAllMap">
+    select * from users where nickname_set = #{collection}
+  </select>
+
+  <update id="updateNickname">
+    update users set
+    nickname_list = #{nicknameList},
+    nickname_set = #{nicknameSet}
+    where id = #{id}
+  </update>
 </mapper>

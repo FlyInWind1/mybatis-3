@@ -17,6 +17,7 @@ package org.apache.ibatis.type.resolved;
 
 import org.apache.ibatis.binding.MapperMethod.ParamMap;
 import org.apache.ibatis.reflection.ParamNameResolver;
+import org.apache.ibatis.session.Configuration;
 
 import java.lang.reflect.Method;
 
@@ -24,6 +25,8 @@ import java.lang.reflect.Method;
  * @author FlyInWind
  */
 public interface ResolvedMethod {
+
+  ResolvedTypeFactory getResolvedTypeFactory();
 
   /**
    * @return may be {@link Method#getDeclaringClass()} or the subclass of {@link Method#getDeclaringClass()}
@@ -51,10 +54,11 @@ public interface ResolvedMethod {
   ResolvedType getReturnType();
 
   /**
-   * @return null if no parameter, return the first type if only one parameter, or {@link ParamMap} type of more than one parameter
-   * @see ParamNameResolver#getNamedParams(Object[])
+   * @return null if no parameter, return the first type if only one parameter, or {@link PropertiesDescriptorResolvedType} if more than one parameter,
+   * the {@link PropertiesDescriptorResolvedType} contains the types of {@link ParamMap} values
+   * @see ParamNameResolver#namedParamsType
    */
-  ResolvedType namedParamsType();
+  ResolvedType namedParamsType(Configuration configuration);
 
   /**
    * @return {@link Method#getName}

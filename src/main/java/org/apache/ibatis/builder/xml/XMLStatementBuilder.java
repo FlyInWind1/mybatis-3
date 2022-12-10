@@ -211,7 +211,7 @@ public class XMLStatementBuilder extends BaseBuilder {
   protected ResolvedType resolveParameterType(String alias, ResolvedMethod method) {
     ResolvedType type = resolveResolvedType(alias);
     if (type == null && method != null) {
-      type = method.namedParamsType();
+      type = method.namedParamsType(configuration);
     }
     return type;
   }

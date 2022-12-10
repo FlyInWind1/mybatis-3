@@ -21,6 +21,7 @@ import org.apache.ibatis.parsing.GenericTokenParser;
 import org.apache.ibatis.parsing.TokenHandler;
 import org.apache.ibatis.reflection.MetaClass;
 import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.reflection.ReflectionException;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
@@ -104,7 +105,7 @@ public class SqlSourceBuilder extends BaseBuilder {
         propertyType = parameterType;
       } else if (JdbcType.CURSOR.name().equals(propertiesMap.get("jdbcType"))) {
         propertyType = resolvedTypeFactory.getResultSetType();
-      } else if (property == null || parameterType.isTypeOrSubTypeOf(Map.class)) {
+      } else if (property == null) {
         propertyType = resolvedTypeFactory.getObjectType();
       } else {
         propertyType = resolveParamTypeByProperty(parameterType, property);
@@ -158,29 +159,20 @@ public class SqlSourceBuilder extends BaseBuilder {
     }
 
     protected boolean parameterTypeToPropertyType(String property) {
-      if (parameterType.hasContentType() && PropertyTokenizer.isPropertyAccess(property)) {
+      if (parameterType.hasContentType() && PropertyTokenizer.isIndexAccess(property)) {
+        // TypeHandlerRegistry has ListTypeHandler, skip list[0] indexAccess
         return false;
       }
       return typeHandlerRegistry.hasTypeHandler(parameterType);
     }
 
     protected ResolvedType resolveParamTypeByProperty(ResolvedType type, String property) {
-      PropertyTokenizer prop = new PropertyTokenizer(property);
-      if (prop.hasNext()) {
-        ResolvedType subType = resolveParamTypeByProperty(type, prop.getIndexedName());
-        if (subType == null) {
-          return null;
-        }
-        return resolveParamTypeByProperty(subType, prop.getChildren());
-      }
-      if (prop.getIndex() != null) {
-        return type.getContentType();
-      }
       MetaClass metaClass = MetaClass.forClass(type, configuration.getReflectorFactory());
-      if (metaClass.hasGetter(prop.getName())) {
-        return metaClass.getGetterResolvedType(prop.getName());
+      try {
+        return metaClass.getGetterResolvedType(property);
+      } catch (ReflectionException e) {
+        return resolvedTypeFactory.getObjectType();
       }
-      return resolvedTypeFactory.getObjectType();
     }
 
   }

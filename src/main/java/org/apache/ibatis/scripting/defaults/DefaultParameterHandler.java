@@ -106,13 +106,13 @@ public class DefaultParameterHandler implements ParameterHandler {
     ResolvedType type = mappedStatement.getParameterMap().getResolvedType();
     if (ResolvedTypeUtil.isNotInstance(type, parameterObject)) {
       type = configuration.constructType(clazz);
-      if (type.getContentType() != null && PropertyTokenizer.isPropertyAccess(propertyName)) {
+      if (type.getContentType() != null && PropertyTokenizer.isIndexAccess(propertyName)) {
         return false;
       }
       return typeHandlerRegistry.hasTypeHandler(type);
     }
     ResolvedType realType = configuration.constructType(clazz);
-    if (realType.hasContentType() && PropertyTokenizer.isPropertyAccess(propertyName)) {
+    if (realType.hasContentType() && PropertyTokenizer.isIndexAccess(propertyName)) {
       return false;
     }
     return typeHandlerRegistry.hasTypeHandler(type) || typeHandlerRegistry.hasTypeHandler(realType);

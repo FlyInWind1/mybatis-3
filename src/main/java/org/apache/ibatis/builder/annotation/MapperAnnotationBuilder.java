@@ -258,7 +258,7 @@ public class MapperAnnotationBuilder {
 
   protected void parseStatement(ResolvedMethod resolvedMethod) {
     Method method = resolvedMethod.getMethod();
-    final ResolvedType parameterTypeClass = resolvedMethod.namedParamsType();
+    final ResolvedType parameterTypeClass = resolvedMethod.namedParamsType(configuration);
     final LanguageDriver languageDriver = getLanguageDriver(method);
 
     getAnnotationWrapper(method, true, statementAnnotationTypes).ifPresent(statementAnnotation -> {

@@ -15,37 +15,11 @@
  */
 package org.apache.ibatis.type.resolved;
 
-import org.apache.ibatis.type.TypeReference;
-
-import java.lang.reflect.Type;
+import org.apache.ibatis.reflection.PropertiesDescriptor;
 
 /**
- * @author FlyInWind
+ * {@link ResolvedType} with {@link PropertiesDescriptor} support
  */
-public interface ResolvedTypeFactory {
-
-  ResolvedType constructType(Type type);
-
-  ResolvedType constructType(Class<?> type);
-
-  <T> ResolvedType constructType(TypeReference<T> typeReference);
-
-  ResolvedType constructParametricType(Class<?> rawClass, Class<?>... typeParameters);
-
-  ResolvedType constructFromCanonical(String canonical);
-
-  ResolvedType getObjectType();
-
-  ResolvedType getIntegerType();
-
-  ResolvedType getLongType();
-
-  ResolvedType getResultSetType();
-
-  ResolvedType getMapType();
-
-  ResolvedType getParamMapType();
-
-//  ResolvedType paramMapType(Map<String, ResolvedType> typeMap);
+public interface PropertiesDescriptorResolvedType extends PropertiesDescriptor, ResolvedType {
 
 }

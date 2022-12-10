@@ -52,6 +52,9 @@ public class ListTypeHandler extends CollectionTypeHandler<List<Object>> {
       registry.register(resolvedTypeFactory.constructParametricType(Collection.class, componentType), typeHandler);
       registry.register(resolvedTypeFactory.constructParametricType(List.class, componentType), typeHandler);
     });
+    ListTypeHandler objectListTypeHandler = new ListTypeHandler(ArrayTypeHandler.DEFAULT_TYPE_NAME);
+    registry.register(resolvedTypeFactory.constructType(Collection.class), objectListTypeHandler);
+    registry.register(resolvedTypeFactory.constructType(List.class), objectListTypeHandler);
     registry.putCreatorCache(ListTypeHandler.class, ListTypeHandler::new);
   }
 }

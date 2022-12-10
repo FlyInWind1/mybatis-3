@@ -15,8 +15,10 @@
  */
 package org.apache.ibatis.submitted.collections_type_handler;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface Mapper {
 
@@ -32,4 +34,10 @@ public interface Mapper {
   Map<String, Long> getNicknameCount();
 
   List<User> selectAll();
+
+  List<User> selectByNicknameList(Collection<String> nicknameList);
+
+  List<User> selectByNicknameSet(Set<String> nicknameList);
+
+  void updateNickname(Integer id, List<String> nicknameList, Set<String> nicknameSet);
 }

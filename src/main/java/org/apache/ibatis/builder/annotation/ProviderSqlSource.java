@@ -160,7 +160,7 @@ public class ProviderSqlSource implements SqlSource {
     this.providerContext = candidateProviderContext;
     this.providerContextIndex = candidateProviderContextIndex;
     this.resolvedMapperMethod = mapperType.resolveMethod(mapperMethod);
-    this.namedParamsType = resolvedMapperMethod.namedParamsType();
+    this.namedParamsType = resolvedMapperMethod.namedParamsType(configuration);
   }
 
   @Override

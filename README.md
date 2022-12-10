@@ -40,5 +40,8 @@ Essentials
 - [x] Compatible with spring-mybatis, mybatis-plus
 - [x] Make xml resultType and resultMap not required
 - [x] Register all handleable type of ArrayTypeHandler to TypeHandlerRegister
+- [x] Pass ParamMap values`s type to SqlSourceBuilder
+- [ ] Cache ResolvedType and ResolvedMethod
+- [ ] Resolve types in xml tags like \<foreach>
 - [ ] Impl SpringResolvedType wrap org.springframework.core.ResolvableType
 - [ ] Impl build in SimpleResolvedType

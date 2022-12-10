@@ -19,10 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.Reader;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.ibatis.BaseDataTest;
 import org.apache.ibatis.io.Resources;
@@ -105,6 +102,31 @@ class CollectionsTypeHandlerTest {
 
       Map<String, Long> nicknameCount = mapper.getNicknameCount();
       assertNull(nicknameCount);
+    }
+  }
+
+  @Test
+  void shouldSelectByCollectionType() {
+    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+      User user = new User();
+      user.setId(1);
+
+      Mapper mapper = sqlSession.getMapper(Mapper.class);
+      mapper.insert(user);
+
+      List<String> nickNameList = Arrays.asList("User", "User");
+      Set<String> set = new HashSet<>(nickNameList);
+      mapper.updateNickname(1, nickNameList, set);
+
+      List<User> users = mapper.selectByNicknameList(nickNameList);
+      user = users.get(0);
+      assertEquals(nickNameList, user.getNicknameList());
+      assertEquals(set, user.getNicknameSet());
+
+      users = mapper.selectByNicknameSet(set);
+      user = users.get(0);
+      assertEquals(nickNameList, user.getNicknameList());
+      assertEquals(set, user.getNicknameSet());
     }
   }
 }

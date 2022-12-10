@@ -74,7 +74,7 @@ public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
     throw new UnsupportedOperationException("Remove is not supported, as it has no meaning in the context of properties.");
   }
 
-  public static boolean isPropertyAccess(String propertyName) {
+  public static boolean isIndexAccess(String propertyName) {
     if (propertyName == null) {
       return false;
     }

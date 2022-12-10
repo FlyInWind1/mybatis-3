@@ -75,7 +75,7 @@ public class JacksonResolvedTypeFactory implements ResolvedTypeFactory {
   }
 
   @Override
-  public ResolvedType constructParametricType(Class<?> rawClass, Class<?> typeParameters) {
+  public ResolvedType constructParametricType(Class<?> rawClass, Class<?>... typeParameters) {
     return toResolvedType(typeFactory.constructParametricType(rawClass, typeParameters));
   }
 
@@ -116,4 +116,5 @@ public class JacksonResolvedTypeFactory implements ResolvedTypeFactory {
   public ResolvedType getParamMapType() {
     return paramMapType;
   }
+
 }

@@ -50,6 +50,8 @@ public class SetTypeHandler extends CollectionTypeHandler<Set<Object>> {
       TypeHandler<?> typeHandler = new SetTypeHandler(arrayTypeName);
       registry.register(resolvedTypeFactory.constructParametricType(Set.class, componentType), typeHandler);
     });
+    SetTypeHandler objectSetTypeHandler = new SetTypeHandler(ArrayTypeHandler.DEFAULT_TYPE_NAME);
+    registry.register(resolvedTypeFactory.constructType(Set.class), objectSetTypeHandler);
     registry.putCreatorCache(SetTypeHandler.class, ListTypeHandler::new);
   }
 }
