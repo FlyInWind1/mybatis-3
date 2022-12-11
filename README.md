@@ -28,7 +28,7 @@ Essentials
 <dependency>
     <groupId>io.github.flyinwind1</groupId>
     <artifactId>mybatis</artifactId>
-    <version>3.5.11.1</version>
+    <version>3.5.11.2</version>
 </dependency>
 ```
 
