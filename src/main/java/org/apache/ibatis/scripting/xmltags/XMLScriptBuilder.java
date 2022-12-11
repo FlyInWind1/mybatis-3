@@ -75,7 +75,7 @@ public class XMLScriptBuilder extends BaseBuilder {
     MixedSqlNode rootSqlNode = parseDynamicTags(context);
     SqlSource sqlSource;
     if (isDynamic) {
-      sqlSource = new DynamicSqlSource(configuration, rootSqlNode);
+      sqlSource = new DynamicSqlSource(configuration, rootSqlNode, parameterType);
     } else {
       sqlSource = new RawSqlSource(configuration, rootSqlNode, parameterType);
     }

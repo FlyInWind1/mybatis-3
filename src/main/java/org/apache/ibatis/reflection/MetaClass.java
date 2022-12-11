@@ -116,7 +116,11 @@ public class MetaClass {
   private ResolvedType getGetterResolvedType(PropertyTokenizer prop) {
     ResolvedType resolvedType = propertiesDescriptor.getGetterResolvedType(prop.getName());
     if (prop.getIndex() != null) {
-      return resolvedType.getContentType();
+      ResolvedType contentType = resolvedType.getContentType();
+      if (contentType == null) {
+        throw new ReflectionException("Cannot get collection content type of '" + resolvedType.toCanonical() + "'");
+      }
+      return contentType;
     }
     return resolvedType;
   }
