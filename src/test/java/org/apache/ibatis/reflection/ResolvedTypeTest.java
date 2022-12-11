@@ -371,13 +371,13 @@ class ResolvedTypeTest {
     ResolvedMethod setter2 = resolvedType.resolveMethod("setKey2", Key.class);
     assertEquals(Key.class, setter2.getParameterTypes()[0].getRawClass());
 
-    getter1 = resolvedType.findMethod("getKey1");
+    getter1 = resolvedType.findMapperMethod("getKey1");
     assertEquals(Key.class, getter1.getReturnType().getRawClass());
-    setter1 = resolvedType.findMethod("setKey1");
+    setter1 = resolvedType.findMapperMethod("setKey1");
     assertEquals(Key.class, setter1.getParameterTypes()[0].getRawClass());
-    getter2 = resolvedType.findMethod("getKey2");
+    getter2 = resolvedType.findMapperMethod("getKey2");
     assertEquals(Key.class, getter2.getReturnType().getRawClass());
-    setter2 = resolvedType.findMethod("setKey2");
+    setter2 = resolvedType.findMapperMethod("setKey2");
     assertEquals(Key.class, setter2.getParameterTypes()[0].getRawClass());
   }
 

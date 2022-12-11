@@ -15,6 +15,8 @@
  */
 package org.apache.ibatis.type.resolved;
 
+import org.apache.ibatis.builder.annotation.MapperAnnotationBuilder;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -85,7 +87,12 @@ public interface ResolvedType extends Type {
 
   ResolvedType[] getTypeParameters();
 
-  ResolvedMethod findMethod(String name);
+  /**
+   * find first method may be a mapper method with special name, the method must not bridge or default
+   *
+   * @see MapperAnnotationBuilder#canHaveStatement
+   */
+  ResolvedMethod findMapperMethod(String name);
 
   ResolvedMethod resolveMethod(String name, Class<?>... parameterTypes);
 

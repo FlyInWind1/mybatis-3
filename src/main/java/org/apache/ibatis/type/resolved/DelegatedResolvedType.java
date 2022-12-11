@@ -113,8 +113,8 @@ public class DelegatedResolvedType implements ResolvedType {
   }
 
   @Override
-  public ResolvedMethod findMethod(String name) {
-    return wrapped.findMethod(name);
+  public ResolvedMethod findMapperMethod(String name) {
+    return wrapped.findMapperMethod(name);
   }
 
   @Override

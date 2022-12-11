@@ -38,11 +38,11 @@ public abstract class BaseResolvedType<T extends Type, F extends ResolvedTypeFac
   }
 
   @Override
-  public ResolvedMethod findMethod(String name) {
+  public ResolvedMethod findMapperMethod(String name) {
     Method[] methods = getRawClass().getMethods();
     Method foundMethod = null;
     for (Method method : methods) {
-      if (method.getName().equals(name) && !method.isDefault() && !method.isBridge()) {
+      if (method.getName().equals(name) && !method.isBridge() && !method.isDefault()) {
         foundMethod = method;
         break;
       }

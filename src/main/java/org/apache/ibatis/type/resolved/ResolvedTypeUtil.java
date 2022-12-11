@@ -43,7 +43,7 @@ public class ResolvedTypeUtil {
     if (type == null || methodName == null) {
       return null;
     }
-    return type.findMethod(methodName);
+    return type.findMapperMethod(methodName);
   }
 
   protected static final JacksonResolvedTypeFactory JACKSON_RESOLVED_TYPE_FACTORY = new JacksonResolvedTypeFactory(TypeFactory.defaultInstance());
