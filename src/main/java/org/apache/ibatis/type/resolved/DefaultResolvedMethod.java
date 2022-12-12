@@ -26,13 +26,13 @@ import java.lang.reflect.Type;
  */
 public class DefaultResolvedMethod implements ResolvedMethod {
   protected final ResolvedTypeFactory resolvedTypeFactory;
-  protected final ResolvedType rawClass;
+  protected final ResolvedType implementationType;
   protected final Method method;
   protected ResolvedType[] parameterTypes;
 
-  protected DefaultResolvedMethod(ResolvedType rawClass, Method method) {
-    this.resolvedTypeFactory = rawClass.getResolvedTypeFactory();
-    this.rawClass = rawClass;
+  protected DefaultResolvedMethod(ResolvedType implementationType, Method method) {
+    this.resolvedTypeFactory = implementationType.getResolvedTypeFactory();
+    this.implementationType = implementationType;
     this.method = method;
   }
 
@@ -42,8 +42,8 @@ public class DefaultResolvedMethod implements ResolvedMethod {
   }
 
   @Override
-  public ResolvedType getRawClass() {
-    return rawClass;
+  public ResolvedType getImplementationType() {
+    return implementationType;
   }
 
   @Override
@@ -57,7 +57,7 @@ public class DefaultResolvedMethod implements ResolvedMethod {
   }
 
   public ResolvedType getMethodDeclaringType() {
-    return rawClass.findSuperType(method.getDeclaringClass());
+    return implementationType.findSuperType(method.getDeclaringClass());
   }
 
   @Override
@@ -73,7 +73,7 @@ public class DefaultResolvedMethod implements ResolvedMethod {
       ResolvedType superType = getMethodDeclaringType();
       if (superType == null) {
         // jackson don't support get superType of String
-        superType = rawClass;
+        superType = implementationType;
       }
       Type[] genericParameterTypes = method.getGenericParameterTypes();
       for (int i = 0; i < count; i++) {

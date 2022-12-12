@@ -31,7 +31,7 @@ public interface ResolvedMethod {
   /**
    * @return may be {@link Method#getDeclaringClass()} or the subclass of {@link Method#getDeclaringClass()}
    */
-  ResolvedType getRawClass();
+  ResolvedType getImplementationType();
 
   /**
    * @return the wrapped {@link Method}

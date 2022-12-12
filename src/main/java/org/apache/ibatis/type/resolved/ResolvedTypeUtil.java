@@ -48,10 +48,13 @@ public class ResolvedTypeUtil {
 
   protected static final JacksonResolvedTypeFactory JACKSON_RESOLVED_TYPE_FACTORY = new JacksonResolvedTypeFactory(TypeFactory.defaultInstance());
 
+  protected static final SpringResolvedTypeFactory SPRING_RESOLVED_TYPE_FACTORY = new SpringResolvedTypeFactory();
+
+
   @Deprecated
   public static ResolvedTypeFactory getResolvedTypeFactory() {
     // TODO: 11/26/22 spring ResolvableType
     // TODO: 11/26/22 build in SimpleResolvedType;
-    return JACKSON_RESOLVED_TYPE_FACTORY;
+    return SPRING_RESOLVED_TYPE_FACTORY;
   }
 }

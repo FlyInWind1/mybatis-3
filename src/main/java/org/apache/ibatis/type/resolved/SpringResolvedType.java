@@ -3,6 +3,8 @@ package org.apache.ibatis.type.resolved;
 import org.apache.ibatis.reflection.Reflector;
 import org.springframework.core.ResolvableType;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 public class SpringResolvedType extends BaseResolvedType<ResolvableType, SpringResolvedTypeFactory> {
@@ -92,13 +94,23 @@ public class SpringResolvedType extends BaseResolvedType<ResolvableType, SpringR
   }
 
   @Override
+  public ResolvedMethod resolveMethod(Method method) {
+    return new SpringResolvedMethod(this, method);
+  }
+
+  @Override
   public ResolvedType[] findTypeParameters(Class<?> rawClass) {
     return toResolvedTypes(type.as(rawClass).getGenerics());
   }
 
   @Override
+  public ResolvedType resolveFieldType(Field field) {
+    return toResolvedType(ResolvableType.forField(field, type));
+  }
+
+  @Override
   public ResolvedType resolveMemberType(Type type) {
-    return toResolvedType(ResolvableType.forType(type, this.type));
+    throw new UnsupportedOperationException();
   }
 
   @Override
