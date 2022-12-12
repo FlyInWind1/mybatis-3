@@ -104,11 +104,6 @@ public interface ResolvedType extends Type {
 
   ResolvedTypeFactory getResolvedTypeFactory();
 
-  /**
-   * @return {@link com.fasterxml.jackson.databind.JavaType}
-   */
-  Type getProxied();
-
   @Override
   boolean equals(Object o);
 

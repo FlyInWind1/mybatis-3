@@ -143,11 +143,6 @@ public class DelegatedResolvedType implements ResolvedType {
   }
 
   @Override
-  public Type getProxied() {
-    return wrapped.getProxied();
-  }
-
-  @Override
   public boolean equals(Object o) {
     return wrapped.equals(o);
   }
