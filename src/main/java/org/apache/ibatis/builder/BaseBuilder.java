@@ -22,8 +22,8 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
-import org.apache.ibatis.type.resolved.ResolvedType;
-import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
+import org.apache.ibatis.reflection.type.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedTypeFactory;
 
 import java.util.Arrays;
 import java.util.HashSet;

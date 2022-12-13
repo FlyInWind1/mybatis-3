@@ -20,7 +20,7 @@ import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedType;
 
 /**
  * As of 3.2.4 the default XML language is able to identify static statements

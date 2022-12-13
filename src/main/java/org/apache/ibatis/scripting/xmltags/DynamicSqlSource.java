@@ -19,7 +19,7 @@ import org.apache.ibatis.builder.SqlSourceBuilder;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedType;
 
 /**
  * @author Clinton Begin

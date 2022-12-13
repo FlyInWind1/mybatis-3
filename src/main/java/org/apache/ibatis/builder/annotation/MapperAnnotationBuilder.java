@@ -15,8 +15,8 @@
  */
 package org.apache.ibatis.builder.annotation;
 
-import org.apache.ibatis.type.resolved.ResolvedMethod;
-import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedMethod;
+import org.apache.ibatis.reflection.type.ResolvedType;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Options.FlushCachePolicy;
@@ -37,7 +37,7 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.UnknownTypeHandler;
-import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
+import org.apache.ibatis.reflection.type.ResolvedTypeFactory;
 
 import java.io.IOException;
 import java.io.InputStream;

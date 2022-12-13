@@ -15,8 +15,8 @@
  */
 package org.apache.ibatis.type;
 
-import org.apache.ibatis.type.resolved.ResolvedType;
-import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
+import org.apache.ibatis.reflection.type.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedTypeFactory;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;

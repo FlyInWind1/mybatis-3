@@ -15,9 +15,9 @@
  */
 package org.apache.ibatis.reflection;
 
-import org.apache.ibatis.type.resolved.ResolvedType;
-import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
-import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
+import org.apache.ibatis.reflection.type.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedTypeFactory;
+import org.apache.ibatis.reflection.type.ResolvedTypeUtil;
 import org.apache.ibatis.util.MapUtil;
 
 import java.util.concurrent.ConcurrentHashMap;

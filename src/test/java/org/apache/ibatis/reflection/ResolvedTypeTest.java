@@ -21,10 +21,10 @@ import org.apache.ibatis.reflection.typeparam.Level0Mapper;
 import org.apache.ibatis.reflection.typeparam.Level0Mapper.Level0InnerMapper;
 import org.apache.ibatis.reflection.typeparam.Level1Mapper;
 import org.apache.ibatis.reflection.typeparam.Level2Mapper;
-import org.apache.ibatis.type.resolved.ResolvedMethod;
-import org.apache.ibatis.type.resolved.ResolvedType;
-import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
-import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
+import org.apache.ibatis.reflection.type.ResolvedMethod;
+import org.apache.ibatis.reflection.type.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedTypeFactory;
+import org.apache.ibatis.reflection.type.ResolvedTypeUtil;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;

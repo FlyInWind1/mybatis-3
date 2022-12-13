@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.scripting;
 
-import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedType;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -23,7 +23,7 @@ import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.scripting.defaults.DefaultParameterHandler;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
+import org.apache.ibatis.reflection.type.ResolvedTypeUtil;
 
 public interface LanguageDriver {
 

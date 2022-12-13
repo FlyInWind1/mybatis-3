@@ -15,7 +15,6 @@
  */
 package org.apache.ibatis.session;
 
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,7 +27,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.apache.ibatis.binding.MapperRegistry;
 import org.apache.ibatis.builder.CacheRefResolver;
 import org.apache.ibatis.builder.IncompleteElementException;
@@ -96,10 +94,9 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
-import org.apache.ibatis.type.resolved.JacksonResolvedTypeFactory;
-import org.apache.ibatis.type.resolved.ResolvedType;
-import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
-import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
+import org.apache.ibatis.reflection.type.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedTypeFactory;
+import org.apache.ibatis.reflection.type.ResolvedTypeUtil;
 
 /**
  * @author Clinton Begin

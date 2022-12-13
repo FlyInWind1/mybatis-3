@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.reflection;
 
-import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedType;
 
 /**
  * Interface for get Class or Map properties types

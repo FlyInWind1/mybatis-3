@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.builder.annotation;
 
-import org.apache.ibatis.type.resolved.ResolvedMethod;
+import org.apache.ibatis.reflection.type.ResolvedMethod;
 
 /**
  * @author Eduardo Macarron

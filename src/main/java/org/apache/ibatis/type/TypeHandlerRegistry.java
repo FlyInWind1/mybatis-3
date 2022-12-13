@@ -19,9 +19,9 @@ import org.apache.ibatis.binding.MapperMethod.ParamMap;
 import org.apache.ibatis.io.ResolverUtil;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.type.resolved.ResolvedType;
-import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
-import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
+import org.apache.ibatis.reflection.type.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedTypeFactory;
+import org.apache.ibatis.reflection.type.ResolvedTypeUtil;
 
 import java.io.InputStream;
 import java.io.Reader;

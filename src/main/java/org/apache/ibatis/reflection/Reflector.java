@@ -17,10 +17,10 @@ package org.apache.ibatis.reflection;
 
 import org.apache.ibatis.reflection.invoker.*;
 import org.apache.ibatis.reflection.property.PropertyNamer;
-import org.apache.ibatis.type.resolved.ResolvedMethod;
-import org.apache.ibatis.type.resolved.ResolvedType;
-import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
-import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
+import org.apache.ibatis.reflection.type.ResolvedMethod;
+import org.apache.ibatis.reflection.type.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedTypeFactory;
+import org.apache.ibatis.reflection.type.ResolvedTypeUtil;
 import org.apache.ibatis.util.MapUtil;
 
 import java.lang.invoke.MethodHandle;

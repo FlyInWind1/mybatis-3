@@ -15,8 +15,8 @@
  */
 package org.apache.ibatis.type;
 
-import org.apache.ibatis.type.resolved.ResolvedType;
-import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
+import org.apache.ibatis.reflection.type.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedTypeUtil;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 

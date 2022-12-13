@@ -20,10 +20,10 @@ import org.apache.ibatis.binding.MapperMethod.ParamMap;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.apache.ibatis.type.resolved.MapDescriptorResolvedType;
-import org.apache.ibatis.type.resolved.PropertiesDescriptorResolvedType;
-import org.apache.ibatis.type.resolved.ResolvedMethod;
-import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.reflection.type.MapDescriptorResolvedType;
+import org.apache.ibatis.reflection.type.PropertiesDescriptorResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedMethod;
+import org.apache.ibatis.reflection.type.ResolvedType;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

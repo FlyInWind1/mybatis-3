@@ -13,14 +13,14 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.apache.ibatis.type.resolved;
+package org.apache.ibatis.reflection.type;
 
 import com.fasterxml.jackson.databind.JavaType;
 
 import java.lang.reflect.Type;
 import java.util.List;
 
-import static org.apache.ibatis.type.resolved.ResolvedTypeUtil.EMPTY_TYPE_ARRAY;
+import static org.apache.ibatis.reflection.type.ResolvedTypeUtil.EMPTY_TYPE_ARRAY;
 
 /**
  * @author FlyInWind

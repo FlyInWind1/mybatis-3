@@ -17,8 +17,8 @@ package org.apache.ibatis.builder;
 
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.ResultType;
-import org.apache.ibatis.type.resolved.ResolvedMethod;
-import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedMethod;
+import org.apache.ibatis.reflection.type.ResolvedType;
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.cache.decorators.LruCache;
 import org.apache.ibatis.cache.impl.PerpetualCache;

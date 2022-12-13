@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.builder.annotation;
 
-import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedType;
 
 import java.lang.reflect.Method;
 

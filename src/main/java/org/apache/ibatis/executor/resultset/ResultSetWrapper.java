@@ -15,11 +15,10 @@
  */
 package org.apache.ibatis.executor.resultset;
 
-import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedType;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.*;
-import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

@@ -15,8 +15,8 @@
  */
 package org.apache.ibatis.reflection;
 
-import org.apache.ibatis.type.resolved.ResolvedType;
-import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
+import org.apache.ibatis.reflection.type.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedTypeFactory;
 
 public interface ReflectorFactory {
 

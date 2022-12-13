@@ -17,8 +17,8 @@ package org.apache.ibatis.reflection;
 
 import org.apache.ibatis.reflection.invoker.Invoker;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
-import org.apache.ibatis.type.resolved.ConstantPropertiesDescriptor;
-import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.reflection.type.ConstantPropertiesDescriptor;
+import org.apache.ibatis.reflection.type.ResolvedType;
 
 import java.util.Map;
 

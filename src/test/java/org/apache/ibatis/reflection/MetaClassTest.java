@@ -17,9 +17,9 @@ package org.apache.ibatis.reflection;
 
 import org.apache.ibatis.domain.misc.RichType;
 import org.apache.ibatis.domain.misc.generics.GenericConcrete;
-import org.apache.ibatis.type.resolved.MapDescriptorResolvedType;
-import org.apache.ibatis.type.resolved.ResolvedType;
-import org.apache.ibatis.type.resolved.ResolvedTypeFactory;
+import org.apache.ibatis.reflection.type.MapDescriptorResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedTypeFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;

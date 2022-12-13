@@ -18,9 +18,9 @@ package org.apache.ibatis.mapping;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedType;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.type.resolved.ResolvedTypeUtil;
+import org.apache.ibatis.reflection.type.ResolvedTypeUtil;
 
 /**
  * @author Clinton Begin

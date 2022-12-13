@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.type;
 
-import org.apache.ibatis.type.resolved.ResolvedType;
+import org.apache.ibatis.reflection.type.ResolvedType;
 
 import java.sql.*;
 import java.util.Collection;
