@@ -21,160 +21,155 @@ import java.lang.reflect.Type;
 
 public class DelegatedResolvedType implements ResolvedType {
 
-  protected final ResolvedType wrapped;
+  protected final ResolvedType delegate;
 
-  public DelegatedResolvedType(ResolvedType wrapped) {
-    this.wrapped = wrapped;
+  public DelegatedResolvedType(ResolvedType delegate) {
+    this.delegate = delegate;
   }
 
   @Override
   public Class<?> getRawClass() {
-    return wrapped.getRawClass();
+    return delegate.getRawClass();
   }
 
   @Override
   public boolean isPrimitive() {
-    return wrapped.isPrimitive();
+    return delegate.isPrimitive();
   }
 
   @Override
   public boolean isArrayType() {
-    return wrapped.isArrayType();
+    return delegate.isArrayType();
   }
 
   @Override
   public boolean isEnumType() {
-    return wrapped.isEnumType();
+    return delegate.isEnumType();
   }
 
   @Override
   public boolean isRecordType() {
-    return wrapped.isRecordType();
+    return delegate.isRecordType();
   }
 
   @Override
   public boolean isInterface() {
-    return wrapped.isInterface();
+    return delegate.isInterface();
   }
 
   @Override
   public boolean isTypeOrSubTypeOf(Class<?> clazz) {
-    return wrapped.isTypeOrSubTypeOf(clazz);
+    return delegate.isTypeOrSubTypeOf(clazz);
   }
 
   @Override
   public boolean isTypeOrSuperTypeOf(Class<?> clazz) {
-    return wrapped.isTypeOrSuperTypeOf(clazz);
+    return delegate.isTypeOrSuperTypeOf(clazz);
   }
 
   @Override
   public boolean isJavaLangObject() {
-    return wrapped.isJavaLangObject();
+    return delegate.isJavaLangObject();
   }
 
   @Override
   public boolean hasRawClass(Class<?> clazz) {
-    return wrapped.hasRawClass(clazz);
+    return delegate.hasRawClass(clazz);
   }
 
   @Override
   public boolean hasContentType() {
-    return wrapped.hasContentType();
+    return delegate.hasContentType();
   }
 
   @Override
   public ResolvedType findSuperType(Class<?> clazz) {
-    return wrapped.findSuperType(clazz);
+    return delegate.findSuperType(clazz);
   }
 
   @Override
   public ResolvedType[] getInterfaces() {
-    return wrapped.getInterfaces();
+    return delegate.getInterfaces();
   }
 
   @Override
   public ResolvedType getSuperclass() {
-    return wrapped.getSuperclass();
+    return delegate.getSuperclass();
   }
 
   @Override
   public ResolvedType getContentType() {
-    return wrapped.getContentType();
+    return delegate.getContentType();
   }
 
   @Override
   public ResolvedType[] findTypeParameters(Class<?> rawClass) {
-    return wrapped.findTypeParameters(rawClass);
+    return delegate.findTypeParameters(rawClass);
   }
 
   @Override
   public ResolvedType[] getTypeParameters() {
-    return wrapped.getTypeParameters();
+    return delegate.getTypeParameters();
   }
 
   @Override
   public ResolvedMethod findMapperMethod(String name) {
-    return wrapped.findMapperMethod(name);
+    return delegate.findMapperMethod(name);
   }
 
   @Override
   public ResolvedMethod resolveMethod(String name, Class<?>... parameterTypes) {
-    return wrapped.resolveMethod(name, parameterTypes);
+    return delegate.resolveMethod(name, parameterTypes);
   }
 
   @Override
   public ResolvedMethod resolveMethod(Method method) {
-    return wrapped.resolveMethod(method);
+    return delegate.resolveMethod(method);
   }
 
   @Override
   public ResolvedType resolveMemberType(Type type) {
-    return wrapped.resolveMemberType(type);
+    return this.delegate.resolveMemberType(type);
   }
 
   @Override
   public ResolvedType resolveFieldType(Field field) {
-    return wrapped.resolveFieldType(field);
+    return delegate.resolveFieldType(field);
   }
 
   @Override
   public ResolvedTypeFactory getResolvedTypeFactory() {
-    return wrapped.getResolvedTypeFactory();
-  }
-
-  @Override
-  public Type getProxied() {
-    return wrapped.getProxied();
+    return delegate.getResolvedTypeFactory();
   }
 
   @Override
   public boolean equals(Object o) {
-    return wrapped.equals(o);
+    return delegate.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return wrapped.hashCode();
+    return delegate.hashCode();
   }
 
   @Override
   public String getName() {
-    return wrapped.getName();
+    return delegate.getName();
   }
 
   @Override
   public String toString() {
-    return wrapped.toString();
+    return delegate.toString();
   }
 
   @Override
   public String toCanonical() {
-    return wrapped.toCanonical();
+    return delegate.toCanonical();
   }
 
   @Override
   public String getTypeName() {
-    return wrapped.getTypeName();
+    return delegate.getTypeName();
   }
 
 }
