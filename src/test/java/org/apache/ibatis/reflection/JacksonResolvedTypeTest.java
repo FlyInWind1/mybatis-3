@@ -40,8 +40,8 @@ import java.util.concurrent.Future;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ResolvedTypeTest {
-  ResolvedTypeFactory resolvedTypeFactory = ResolvedTypeUtil.getResolvedTypeFactory();
+class JacksonResolvedTypeTest {
+  ResolvedTypeFactory resolvedTypeFactory = ResolvedTypeUtil.getJacksonTypeFactory();
 
   @Test
   void testReturn_Lv0SimpleClass() throws Exception {

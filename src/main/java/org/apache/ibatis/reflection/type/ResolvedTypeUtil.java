@@ -22,9 +22,9 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  */
 public class ResolvedTypeUtil {
 
-    public static final ResolvedType[] EMPTY_TYPE_ARRAY = new ResolvedType[0];
+  public static final ResolvedType[] EMPTY_TYPE_ARRAY = new ResolvedType[0];
 
-    public static Class<?> getRawClass(ResolvedType type) {
+  public static Class<?> getRawClass(ResolvedType type) {
     if (type == null) {
       return null;
     }
@@ -46,12 +46,36 @@ public class ResolvedTypeUtil {
     return type.findMapperMethod(methodName);
   }
 
-  protected static final JacksonResolvedTypeFactory JACKSON_RESOLVED_TYPE_FACTORY = new JacksonResolvedTypeFactory(TypeFactory.defaultInstance());
-
-  @Deprecated
   public static ResolvedTypeFactory getResolvedTypeFactory() {
-    // TODO: 11/26/22 spring ResolvableType
-    // TODO: 11/26/22 build in SimpleResolvedType;
-    return JACKSON_RESOLVED_TYPE_FACTORY;
+    ResolvedTypeFactory resolvedTypeFactory = getJacksonTypeFactory();
+    if (resolvedTypeFactory != null) {
+      return resolvedTypeFactory;
+    }
+    return getBuildInJacksonTypeFactory();
+  }
+
+  private static class JacksonResolvedTypeFactoryHolder {
+    private static JacksonResolvedTypeFactory instance;
+
+    static {
+      try {
+        Class.forName("com.fasterxml.jackson.databind.type.TypeFactory");
+        instance = new JacksonResolvedTypeFactory(TypeFactory.defaultInstance());
+      } catch (ClassNotFoundException e) {
+        // ignore
+      }
+    }
+  }
+
+  public static ResolvedTypeFactory getJacksonTypeFactory() {
+    return JacksonResolvedTypeFactoryHolder.instance;
+  }
+
+  private static class BuildInJacksonResolvedTypeFactoryHolder {
+    private static final BuildInJacksonBaseResolvedTypeFactory INSTANCE = new BuildInJacksonBaseResolvedTypeFactory();
+  }
+
+  public static ResolvedTypeFactory getBuildInJacksonTypeFactory() {
+    return BuildInJacksonResolvedTypeFactoryHolder.INSTANCE;
   }
 }
