@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Wrap class for {@link Class} with addon GenericType info
+ * Wrap class for {@link Class} with addon ParameterType info
  *
  * @author FlyInWind
  */
@@ -57,19 +57,35 @@ public interface ResolvedType extends Type {
    */
   boolean isInterface();
 
+  /**
+   * @return {@code clazz.isAssignedFrom(this)}
+   */
   boolean isTypeOrSubTypeOf(Class<?> clazz);
 
+  /**
+   * @return {@code this.isAssignedFrom(clazz)}
+   */
   boolean isTypeOrSuperTypeOf(Class<?> clazz);
 
+  /**
+   * @return {@link #getRawClass()} {@code == Object.class}
+   */
   boolean isJavaLangObject();
 
   /**
-   * clazz == {@link #getRawClass()}
+   * {@link #getRawClass()} == clazz
    */
   boolean hasRawClass(Class<?> clazz);
 
+  /**
+   * Array, {@link Collection}, {@link Map} has content type
+   */
   boolean hasContentType();
 
+  /**
+   * @param clazz class or super class of {@link #getRawClass()}
+   * @return clazz type with addon ParameterType info
+   */
   ResolvedType findSuperType(Class<?> clazz);
 
   ResolvedType[] getInterfaces();
