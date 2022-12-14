@@ -84,11 +84,6 @@ public abstract class BaseResolvedType<T extends Type, F extends ResolvedTypeFac
   }
 
   @Override
-  public T getProxied() {
-    return type;
-  }
-
-  @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(getClass().isInstance(o))) return false;
@@ -98,11 +93,6 @@ public abstract class BaseResolvedType<T extends Type, F extends ResolvedTypeFac
   @Override
   public int hashCode() {
     return type.hashCode();
-  }
-
-  @Override
-  public String getName() {
-    return getRawClass().getName();
   }
 
   @Override

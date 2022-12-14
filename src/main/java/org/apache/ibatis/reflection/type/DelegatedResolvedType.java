@@ -153,11 +153,6 @@ public class DelegatedResolvedType implements ResolvedType {
   }
 
   @Override
-  public String getName() {
-    return delegate.getName();
-  }
-
-  @Override
   public String toString() {
     return delegate.toString();
   }
