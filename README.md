@@ -43,5 +43,6 @@ Essentials
 - [x] Pass ParamMap values`s type to SqlSourceBuilder
 - [ ] Cache ResolvedType and ResolvedMethod
 - [ ] Resolve types in xml tags like \<foreach>
+- [ ] Override TypeFactory#classForName to use Resources#classForName
 - [ ] Impl SpringResolvedType wrap org.springframework.core.ResolvableType
 - [ ] Impl build in SimpleResolvedType

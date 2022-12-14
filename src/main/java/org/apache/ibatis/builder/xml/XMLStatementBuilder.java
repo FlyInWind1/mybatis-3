@@ -203,9 +203,9 @@ public class XMLStatementBuilder extends BaseBuilder {
     return configuration.getLanguageDriver(langClass);
   }
 
-  protected ResolvedMethod findMethod(String id) {
+  protected ResolvedMethod findMethod(String methodName) {
     ResolvedType mapperType = builderAssistant.getMapperType();
-    return ResolvedTypeUtil.findMethod(mapperType, id);
+    return ResolvedTypeUtil.findMethod(mapperType, methodName);
   }
 
   protected ResolvedType resolveParameterType(String alias, ResolvedMethod method) {
