@@ -20,8 +20,6 @@ import com.fasterxml.jackson.databind.JavaType;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import static org.apache.ibatis.reflection.type.ResolvedTypeUtil.EMPTY_TYPE_ARRAY;
-
 /**
  * @author FlyInWind
  */
@@ -29,6 +27,11 @@ public class JacksonResolvedType extends BaseResolvedType<JavaType, JacksonResol
 
   public JacksonResolvedType(JavaType type, JacksonResolvedTypeFactory resolvedTypeFactory) {
     super(type, resolvedTypeFactory);
+  }
+
+  @Override
+  protected ResolvedType toResolvedType(JavaType javaType) {
+    return resolvedTypeFactory.toResolvedType(javaType);
   }
 
   @Override
@@ -94,12 +97,7 @@ public class JacksonResolvedType extends BaseResolvedType<JavaType, JacksonResol
   @Override
   public ResolvedType[] getInterfaces() {
     List<JavaType> interfaces = type.getInterfaces();
-    ResolvedType[] result = new ResolvedType[interfaces.size()];
-    for (int i = 0; i < interfaces.size(); i++) {
-      JavaType inf = interfaces.get(i);
-      result[i] = toResolvedType(inf);
-    }
-    return result;
+    return toResolvedTypes(interfaces);
   }
 
   @Override
@@ -119,14 +117,7 @@ public class JacksonResolvedType extends BaseResolvedType<JavaType, JacksonResol
   @Override
   public ResolvedType[] findTypeParameters(Class<?> clazz) {
     JavaType[] types = type.findTypeParameters(clazz);
-    if (types.length == 0) {
-      return EMPTY_TYPE_ARRAY;
-    }
-    ResolvedType[] result = new ResolvedType[types.length];
-    for (int i = 0; i < types.length; i++) {
-      result[i] = toResolvedType(types[i]);
-    }
-    return result;
+    return toResolvedTypes(types);
   }
 
   @Override

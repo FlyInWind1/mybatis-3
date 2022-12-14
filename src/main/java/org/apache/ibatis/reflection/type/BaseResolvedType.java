@@ -17,13 +17,13 @@ package org.apache.ibatis.reflection.type;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * @author FlyInWind
  */
-public abstract class BaseResolvedType<T extends Type, F extends ResolvedTypeFactory> implements ResolvedType {
+public abstract class BaseResolvedType<T, F extends ResolvedTypeFactory> implements ResolvedType {
   protected final F resolvedTypeFactory;
   protected final T type;
 
@@ -33,8 +33,32 @@ public abstract class BaseResolvedType<T extends Type, F extends ResolvedTypeFac
     this.type = type;
   }
 
-  protected ResolvedType toResolvedType(T type) {
-    return resolvedTypeFactory.constructType(type);
+  protected abstract ResolvedType toResolvedType(T type);
+
+  protected ResolvedType[] toResolvedTypes(T[] types) {
+    int size = types.length;
+    if (size == 0) {
+      return ResolvedTypeUtil.EMPTY_TYPE_ARRAY;
+    }
+    ResolvedType[] result = new ResolvedType[size];
+    for (int i = 0; i < size; i++) {
+      T inf = types[i];
+      result[i] = toResolvedType(inf);
+    }
+    return result;
+  }
+
+  protected ResolvedType[] toResolvedTypes(List<T> types) {
+    int size = types.size();
+    if (size == 0) {
+      return ResolvedTypeUtil.EMPTY_TYPE_ARRAY;
+    }
+    ResolvedType[] result = new ResolvedType[size];
+    for (int i = 0; i < size; i++) {
+      T inf = types.get(i);
+      result[i] = toResolvedType(inf);
+    }
+    return result;
   }
 
   @Override
@@ -93,11 +117,6 @@ public abstract class BaseResolvedType<T extends Type, F extends ResolvedTypeFac
   @Override
   public int hashCode() {
     return type.hashCode();
-  }
-
-  @Override
-  public String getTypeName() {
-    return type.getTypeName();
   }
 
   @Override

@@ -48,6 +48,9 @@ public class JacksonResolvedTypeFactory implements ResolvedTypeFactory {
   }
 
   public ResolvedType toResolvedType(JavaType javaType) {
+    if (javaType == null) {
+      return null;
+    }
     return new JacksonResolvedType(javaType, this);
   }
 
